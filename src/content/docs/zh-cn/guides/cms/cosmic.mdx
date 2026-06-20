@@ -4,12 +4,10 @@ description: 使用 Cosmic 作为 CMS 向你的 Astro 项目添加内容
 sidebar:
   label: Cosmic
 type: cms
-service: Cosmic
+logo: cosmic
 i18nReady: true
 ---
 import PackageManagerTabs from '~/components/tabs/PackageManagerTabs.astro';
-import Grid from '~/components/FluidGrid.astro';
-import Card from '~/components/ShowcaseCard.astro';
 import { Steps } from '@astrojs/starlight/components';
 
 [Cosmic](https://www.cosmicjs.com/) 是一个 [无头 CMS](https://www.cosmicjs.com/headless-cms) ，它提供了一个管理员仪表板来管理内容，以及一个可以与各种前端工具集成的 API。
@@ -24,7 +22,7 @@ import { Steps } from '@astrojs/starlight/components';
 
 ### 安装必要的依赖
 
-添加 Cosmic JavaScript SDK 以从你的 Cosmic Bucket 中获取数据。
+添加 [Cosmic JavaScript SDK](https://www.npmjs.com/package/@cosmicjs/sdk) 以从你的 Cosmic Bucket 中获取数据。
 
 <PackageManagerTabs>
   <Fragment slot="npm">
@@ -235,6 +233,7 @@ const { post } = Astro.props
 
 <Steps>
 1. 转到你的网站仪表板，点击 **Build & deploy**。
+
 2. 在 **Continuous Deployment** 标签下，找到 **Build hooks** 部分，点击 **Add build hook**。
 3. 为你的 webhook 提供一个名称，并选择你想触发构建的分支。点击 **Save** 并复制生成的 URL。
 </Steps>
@@ -245,12 +244,8 @@ const { post } = Astro.props
 
 <Steps>
 1. 转到你的项目仪表板，点击 **Settings**。
+
 2. 在 **Git** 标签下，找到 **Deploy Hooks** 部分。
+
 3. 为你的 webhook 提供一个名称，以及你想触发构建的分支。点击 **Add** 并复制生成的 URL。
 </Steps>
-
-## 主题
-
-<Grid>
-  <Card title="Astro Headless CMS Blog" href="https://astro.build/themes/details/cosmic-cms-blog/" thumbnail="simple-astro-blog.png" />
-</Grid>

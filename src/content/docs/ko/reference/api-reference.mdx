@@ -5,7 +5,7 @@ sidebar:
 i18nReady: true
 tableOfContents:
   minHeadingLevel: 2
-  maxHeadingLevel: 4
+  maxHeadingLevel: 3
 ---
 import Since from '~/components/Since.astro';
 import { Tabs, TabItem } from '@astrojs/starlight/components';
@@ -719,11 +719,21 @@ const { data, error } = await Astro.callAction(actions.logout, { userId: '123' }
 
 응답과 함께 전송될 `Set-Cookie`의 헤더 값을 가져옵니다.
 
+##### `cookies.consume()`
+
+<p>
+
+**타입:** `() => Iterator<string>`<br />
+<Since v="6.3.0" />
+</p>
+
+쿠키를 사용된 것으로 표시하고 [`cookies.headers()`](#cookiesheaders)와 유사하게 `Set-Cookie` 헤더 값을 반환합니다. `consume()`을 호출한 후에는 쿠키 헤더가 이미 브라우저로 전송되었으므로, 이후의 모든 `cookies.set()` 호출은 경고를 기록합니다. 이는 쿠키가 응답에 한 번만 직렬화되도록 보장하기 위해 어댑터에서 내부적으로 사용됩니다.
+
 #### `AstroCookie` 타입
 
 `Astro.cookies.get()`을 통해 쿠키를 가져올 때 반환되는 타입입니다. 다음과 같은 속성을 가집니다:
 
-##### `value`
+##### `AstroCookie.value`
 
 <p>
 
@@ -732,7 +742,7 @@ const { data, error } = await Astro.callAction(actions.logout, { userId: '123' }
 
 쿠키의 원시 문자열 값입니다.
 
-##### `json`
+##### `AstroCookie.json()`
 
 <p>
 
@@ -741,7 +751,7 @@ const { data, error } = await Astro.callAction(actions.logout, { userId: '123' }
 
 `JSON.parse()`를 통해 쿠키 값을 구문 분석하여 객체를 반환합니다. 쿠키 값이 유효한 JSON이 아닐 경우 오류가 발생합니다.
 
-##### `number`
+##### `AstroCookie.number()`
 
 <p>
 
@@ -750,7 +760,7 @@ const { data, error } = await Astro.callAction(actions.logout, { userId: '123' }
 
 쿠키 값을 숫자로 구문 분석합니다. 유효한 숫자가 아닌 경우 NaN을 반환합니다.
 
-##### `boolean`
+##### `AstroCookie.boolean()`
 
 <p>
 
@@ -765,7 +775,7 @@ const { data, error } = await Astro.callAction(actions.logout, { userId: '123' }
 
 `AstroCookieGetOption` 인터페이스를 사용하면 쿠키를 받을 때 옵션을 지정할 수 있습니다.
 
-##### `decode`
+##### `AstroCookieGetOptions.decode()`
 
 <p>
 **타입:** `(value: string) => string`
@@ -779,7 +789,7 @@ const { data, error } = await Astro.callAction(actions.logout, { userId: '123' }
 
 `AstroCookieSetOptions`는 쿠키를 설정할 때 `Astro.cookies.set()`에 전달하여 쿠키 직렬화 방식을 사용자 지정할 수 있는 객체입니다.
 
-##### `domain`
+##### `AstroCookieSetOptions.domain`
 
 <p>
 
@@ -788,7 +798,7 @@ const { data, error } = await Astro.callAction(actions.logout, { userId: '123' }
 
 도메인을 지정합니다. 도메인을 설정하지 않으면 대부분의 클라이언트는 현재 도메인에 적용되는 것으로 해석합니다.
 
-##### `expires`
+##### `AstroCookieSetOptions.expires`
 
 <p>
 
@@ -797,7 +807,7 @@ const { data, error } = await Astro.callAction(actions.logout, { userId: '123' }
 
 쿠키가 만료되는 날짜를 지정합니다.
 
-##### `httpOnly`
+##### `AstroCookieSetOptions.httpOnly`
 
 <p>
 
@@ -806,7 +816,7 @@ const { data, error } = await Astro.callAction(actions.logout, { userId: '123' }
 
 true이면 클라이언트 측에서 쿠키에 액세스할 수 없습니다.
 
-##### `maxAge`
+##### `AstroCookieSetOptions.maxAge`
 
 <p>
 
@@ -815,7 +825,7 @@ true이면 클라이언트 측에서 쿠키에 액세스할 수 없습니다.
 
 쿠키가 유효한 기간(초)을 숫자로 지정합니다.
 
-##### `path`
+##### `AstroCookieSetOptions.path`
 
 <p>
 
@@ -824,7 +834,19 @@ true이면 클라이언트 측에서 쿠키에 액세스할 수 없습니다.
 
 쿠키가 적용되는 도메인의 하위 경로를 지정합니다.
 
-##### `sameSite`
+##### `AstroCookieSetOptions.partitioned`
+
+<p>
+
+**타입:** `boolean`<br />
+<Since v="5.17.0" />
+</p>
+
+true인 경우, 이 쿠키는 [파티셔닝된 쿠키](https://developer.mozilla.org/en-US/docs/Web/Privacy/Guides/Privacy_sandbox/Partitioned_cookies)입니다. 파티셔닝된 쿠키는 설정된 최상위 사이트의 컨텍스트에서만 읽을 수 있으며, 이는 교차 사이트 추적을 차단하면서, 타사 쿠키의 합법적인 사용을 가능하게 합니다.
+
+파티셔닝된 쿠키는 `secure: true`로 설정해야 합니다.
+
+##### `AstroCookieSetOptions.sameSite`
 
 <p>
 
@@ -833,7 +855,7 @@ true이면 클라이언트 측에서 쿠키에 액세스할 수 없습니다.
 
 [SameSite](https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-09#section-5.4.7) 쿠키 헤더의 값을 지정합니다.
 
-##### `secure`
+##### `AstroCookieSetOptions.secure`
 
 <p>
 
@@ -842,7 +864,7 @@ true이면 클라이언트 측에서 쿠키에 액세스할 수 없습니다.
 
 true인 경우 쿠키는 https 사이트에만 설정됩니다.
 
-##### `encode`
+##### `AstroCookieSetOptions.encode()`
 
 <p>
 
@@ -867,7 +889,7 @@ true인 경우 쿠키는 https 사이트에만 설정됩니다.
 
 Astro 프로젝트에서 세션을 사용하는 방법에 대한 더 자세한 내용은 [세션 가이드](/ko/guides/sessions/)를 참조하세요.
 
-#### `get()`
+#### `session.get()`
 
 <p>
 
@@ -899,7 +921,7 @@ Astro 프로젝트에서 세션을 사용하는 방법에 대한 더 자세한 �
   </TabItem>
 </Tabs>
 
-#### `set()`
+#### `session.set()`
 
 <p>
 
@@ -907,7 +929,7 @@ Astro 프로젝트에서 세션을 사용하는 방법에 대한 더 자세한 �
 
 </p>
 
-세션에서 주어진 키에 해당하는 값을 설정합니다. 값은 직렬화 가능한 어떤 타입이든 가능합니다. 이 메서드는 동기적이며, 설정된 값은 즉시 검색할 수 있지만, 요청이 끝날 때까지 백엔드에 저장되지는 않습니다.
+세션에서 주어진 키에 해당하는 값을 설정합니다. 값은 직렬화 가능한 어떤 타입이든 가능합니다. 이 메서드는 동기적이며, 설정된 값은 즉시 검색할 수 있지만, 요청이 끝날 때까지 백엔드에 저장되지는 않습니다. `ttl` 옵션은 값의 만료 시간을 초 단위로 설정합니다.
 
 <Tabs>
   <TabItem label="Astro.session">
@@ -935,7 +957,7 @@ Astro 프로젝트에서 세션을 사용하는 방법에 대한 더 자세한 �
   </TabItem>
 </Tabs>
 
-#### `regenerate()`
+#### `session.regenerate()`
 
 <p>
 
@@ -969,7 +991,7 @@ Astro 프로젝트에서 세션을 사용하는 방법에 대한 더 자세한 �
   </TabItem>
 </Tabs>
 
-#### `destroy()`
+#### `session.destroy()`
 
 <p>
 
@@ -1001,7 +1023,7 @@ Astro 프로젝트에서 세션을 사용하는 방법에 대한 더 자세한 �
   </TabItem>
 </Tabs>
 
-#### `load()`
+#### `session.load()`
 
 <p>
 
@@ -1044,117 +1066,160 @@ ID를 사용하여 세션을 로드합니다. 일반적인 사용 환경에서�
 
 </Tabs>
 
+### `csp`
 
-### 더 이상 사용되지 않는 객체 속성
+<p>
 
-#### `Astro.glob()`
+**타입**: `object | undefined`
+<Since v="6.0.0" />
+</p>
 
-:::caution[v5.0에서 더 이상 사용되지 않음]
-[Vite의 `import.meta.glob`](https://ko.vite.dev/guide/features.html#glob-import)을 사용하여 프로젝트 파일을 쿼리합니다. 
+Astro의 CSP 런타임 API는 문서가 로드할 수 있는 리소스를 제어하여 특정 유형의 보안 위협을 최소화하는 데 도움이 되는 [콘텐츠 보안 정책(CSP)](https://developer.mozilla.org/ko/docs/Web/HTTP/Guides/CSP) 지원을 활성화합니다. 이는 [교차 사이트 스크립팅(XSS)](https://developer.mozilla.org/ko/docs/Glossary/Cross-site_scripting) 공격에 대한 추가적인 보호를 제공합니다.
 
-`Astro.glob('../pages/post/*.md')`를 다음과 같이 변환할 수 있습니다.
+`.astro` 컴포넌트 내부의 `Astro` 전역 객체 또는 엔드포인트 및 미들웨어의 `APIContext` 타입을 사용하여 페이지별로 `<meta>` 요소를 사용자 정의할 수 있습니다.
 
-`Object.values(import.meta.glob('../pages/post/*.md', { eager: true }));`
+리소스가 여러 번 삽입되거나 여러 소스(예: [`csp` 구성](/ko/reference/configuration-reference/#securitycsp)에 정의된 것과 다음 CSP 런타임 API를 사용하여 추가된 것)에서 제공되는 경우, Astro는 모든 리소스를 병합하고 중복을 제거하여 `<meta>` 요소를 생성합니다.
 
-더 많은 정보와 사용법은 [가져오기 가이드](/ko/guides/imports/#importmetaglob)를 참조하세요.
-:::
 
-`Astro.glob()`은 정적 사이트 설정에 많은 로컬 파일을 로드하는 방법입니다.
+#### `csp.insertDirective()`
 
-```astro
+<p>
+
+**타입:** `(directive: CspDirective) => void`<br />
+<Since v="6.0.0" />
+</p>
+
+현재 페이지에 단일 지시어를 추가합니다. 이 메서드를 여러 번 호출하여 지시어를 추가할 수 있습니다.
+
+```astro title="src/pages/index.astro"
 ---
-// src/components/my-component.astro
-const posts = await Astro.glob('../pages/post/*.md'); // ./src/pages/post/*.md에 위치한 게시물의 배열을 반환합니다.
+Astro.csp?.insertDirective("default-src 'self'");
+Astro.csp?.insertDirective("img-src 'self' https://images.cdn.example.com");
 ---
-
-<div>
-{posts.slice(0, 3).map((post) => (
-  <article>
-    <h2>{post.frontmatter.title}</h2>
-    <p>{post.frontmatter.description}</p>
-    <a href={post.url}>Read more</a>
-  </article>
-))}
-</div>
 ```
 
-`.glob()`은 하나의 매개변수만 받습니다: 가져오려는 로컬 파일의 상대 URL. 이 함수는 비동기식이며 일치하는 파일에서 내보낸 값들로 이루어진 배열을 반환합니다.
+빌드 후, 이 개별 페이지의 `<meta>` 요소는 기존 `script-src` 및 `style-src` 지시어와 함께 추가된 지시어를 포함하게 됩니다.
 
-`.glob()`은 통계적으로 분석할 수 없으므로 변수나 보간하는 문자열을 받을 수 없습니다. (해결 방법은 [가져오기 가이드](/ko/guides/imports/#지원되는-값)를 참조하세요.) 이는 `Astro.glob()`이 Vite의 [`import.meta.glob()`](https://ko.vite.dev/guide/features.html#glob-import)의 래퍼이기 때문입니다.
-
-:::note
-다음과 같은 경우 Astro 프로젝트에서 `import.meta.glob()`를 사용할 수도 있습니다:
-- API 라우트와 같이 `.astro`가 아닌 파일인 경우. `Astro.glob()`은 `.astro` 파일에서만 사용할 수 있지만 `import.meta.glob()`은 프로젝트의 어느 곳에서나 사용할 수 있습니다.
-- 각 파일을 즉시 로드하고 싶지 않은 경우. `import.meta.glob()`은 콘텐츠 자체를 반환하는 대신 파일 콘텐츠를 가져오는 함수를 반환할 수 있습니다. 여기에는 가져온 파일에 대한 모든 스타일과 스크립트가 포함됩니다. 파일이 실제로 사용되는지 여부는 런타임이 아닌 정적 분석에 의해 결정되므로 이러한 파일은 번들로 묶여 페이지에 추가됩니다.
-- 각 파일의 경로에 액세스하려는 경우. `import.meta.glob()`은 파일 경로의 콘텐츠 맵을 반환하고 `Astro.glob()`은 콘텐츠 목록을 반환합니다.
-- 여러 패턴을 전달하려는 경우(예를 들어, 특정 파일을 필터링하기 위한 "네거티브 패턴" 등을 추가하려는 경우). `import.meta.glob()`는 선택적으로 단일 문자열이 아닌 문자열 배열을 받을 수 있습니다.
-
-[Vite 문서](https://ko.vite.dev/guide/features.html#glob-import)에서 더 자세히 알아보세요.
-:::
-
-##### Markdown 파일
-
-`Astro.glob()`으로 가져온 Markdown 파일은 다음과 같은 `MarkdownInstance` 인터페이스를 반환합니다:
-
-```ts
-export interface MarkdownInstance<T extends Record<string, any>> {
-  /* 이 파일의 YAML/TOML 프런트매터에 지정된 모든 데이터 */
-	frontmatter: T;
-  /* 이 파일의 절대 경로 */
-	file: string;
-  /* 이 파일의 렌더링 경로 */
-	url: string | undefined;
-  /* 이 파일의 콘텐츠를 렌더링하는 Astro 컴포넌트 */
-	Content: AstroComponentFactory;
-  /** (Markdown 전용) 원시 Markdown 파일 콘텐츠, 레이아웃 HTML 및 YAML/TOML 프런트매터 제외 */
-	rawContent(): string;
-  /** (Markdown 전용) HTML로 컴파일된 Markdown 파일, 레이아웃 HTML 제외 */
-	compiledContent(): string;
-  /* 이 파일의 h1...h6 요소의 배열을 반환하는 함수 */
-	getHeadings(): Promise<{ depth: number; slug: string; text: string }[]>;
-	default: AstroComponentFactory;
-}
+```html
+<meta
+http-equiv="content-security-policy"
+content="
+  default-src 'self'; 
+  img-src 'self' https://images.cdn.example.com;
+  script-src 'self' 'sha256-somehash';
+  style-src 'self' 'sha256-somehash';
+  "
+>
 ```
 
-선택적으로 TypeScript 제네릭을 사용하여 `frontmatter` 변수에 타입을 제공할 수 있습니다.
+#### `csp.insertStyleResource()`
 
-```astro
----
-interface Frontmatter {
-  title: string;
-  description?: string;
-}
-const posts = await Astro.glob<Frontmatter>('../pages/post/*.md');
----
+<p>
 
-<ul>
-  {posts.map(post => <li>{post.frontmatter.title}</li>)}
-</ul>
+**타입:** `(resource: string) => void`<br />
+<Since v="6.0.0" />
+</p>
+
+`style-src` 지시어에 사용할 새로운 리소스를 삽입합니다.
+
+```astro title="src/pages/index.astro"
+---
+Astro.csp?.insertStyleResource("https://styles.cdn.example.com");
+---
 ```
 
-##### Astro 파일
+빌드 후, 이 개별 페이지의 `<meta>` 요소는 기본 `style-src` 지시어에 지정된 소스를 추가합니다.
 
-Astro 파일에는 다음과 같은 인터페이스가 있습니다:
-
-```ts
-export interface AstroInstance {
-  /* 이 파일의 파일 경로 */
-  file: string;
-  /* 이 파일의 URL(pages 디렉터리에 있는 경우) */
-	url: string | undefined;
-	default: AstroComponentFactory;
-}
+```html
+<meta
+http-equiv="content-security-policy"
+content="
+  script-src 'self' 'sha256-somehash';
+  style-src https://styles.cdn.example.com 'sha256-somehash';
+  "
+>
 ```
 
-##### 기타 파일
+#### `csp.insertStyleHash()`
 
-기타 파일에는 다양한 인터페이스가 있을 수 있지만 `Astro.glob()`은 인식할 수 없는 파일 형식이 정확히 무엇인지 알고 있는 경우 TypeScript 제네릭을 허용합니다.
+<p>
 
-```ts
+**타입:** `(hash: CspHash) => void`<br />
+<Since v="6.0.0" />
+</p>
+
+`style-src` 지시어에 새로운 해시를 추가합니다.
+
+```astro  title="src/pages/index.astro"
 ---
-interface CustomDataFile {
-  default: Record<string, any>;
-}
-const data = await Astro.glob<CustomDataFile>('../data/**/*.js');
+Astro.csp?.insertStyleHash("sha512-styleHash");
 ---
+```
+
+빌드 후, 이 개별 페이지의 `<meta>` 요소는 기본 `style-src` 지시어에 지정된 해시를 추가합니다.
+
+```html
+<meta
+http-equiv="content-security-policy"
+content="
+  script-src 'self' 'sha256-somehash';
+  style-src 'self' 'sha256-somehash' 'sha512-styleHash';
+  "
+>
+```
+
+#### `csp.insertScriptResource()`
+
+<p>
+
+**타입:** `(resource: string) => void`<br />
+<Since v="6.0.0" />
+</p>
+
+`script-src` 지시어에 사용할 새로운 유효한 소스를 삽입합니다.
+
+```astro title="src/pages/index.astro"
+---
+Astro.csp?.insertScriptResource("https://scripts.cdn.example.com");
+---
+```
+
+빌드 후, 이 개별 페이지의 `<meta>` 요소는 기본 `script-src` 지시어에 지정된 소스를 추가합니다.
+
+```html
+<meta
+http-equiv="content-security-policy"
+content="
+  script-src https://scripts.cdn.example.com 'sha256-somehash';
+  style-src 'self' 'sha256-somehash';
+  "
+>
+```
+
+#### `csp.insertScriptHash()`
+
+<p>
+
+**타입:** `(hash: CspHash) => void`<br />
+<Since v="6.0.0" />
+</p>
+
+`script-src` 지시어에 새로운 해시를 추가합니다.
+
+```astro title="src/pages/index.astro"
+---
+Astro.csp?.insertScriptHash("sha512-scriptHash");
+---
+```
+
+빌드 후, 이 개별 페이지의 `<meta>` 요소는 기본 `script-src` 지시어에 지정된 해시를 추가합니다.
+
+```html
+<meta
+http-equiv="content-security-policy"
+content="
+  script-src 'self' 'sha256-somehash' 'sha512-styleHash';
+  style-src 'self' 'sha256-somehash';
+  "
+>
 ```

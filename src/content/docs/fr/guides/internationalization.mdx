@@ -170,15 +170,11 @@ Activez cette option quand toutes les routes auront un préfixe `/locale/` dans 
 
 - Les URL sans préfixe de paramètres régionaux, (par exemple `example.com/about/`) renverront un code d'état 404 (introuvable), sauf si vous spécifiez une [stratégie de repli](#stratégie-de-repli).
 
-### `redirectToDefaultLocale`
+#### Désactivation des redirections pour l'URL de la page d'accueil
 
-<p><Since v="4.2.0" /></p>
+Même avec les routes préfixées avec votre langue par défaut, ce comportement ne s'applique pas par défaut à la page d'index de votre site. Cela vous permet d'avoir une page d'accueil située en dehors de la structure configurée pour votre langue, où toutes vos routes localisées sont préfixées, à l'exception de l'URL d'accueil de votre site.
 
-Détermine si l'URL d'accueil (`/`) générée par `src/pages/index.astro` redirigera ou non vers `/<defaultLocale>`.
-
-L'utilisation de `prefixDefaultLocale: true` définira également automatiquement `redirectToDefaultLocale: true` dans votre objet de configuration `routing`. Par défaut, le fichier requis `src/pages/index.astro` redirigera automatiquement vers la page d'accueil de votre langue par défaut.
-
-Vous pouvez refuser ce comportement en [utilisant `redirectToDefaultLocale: false`](/fr/reference/configuration-reference/#i18nroutingredirecttodefaultlocale). Cela vous permet d'avoir une page d'accueil de site qui existe en dehors de la structure de dossiers de paramètres régionaux configurée.
+Vous pouvez désactiver ce comportement afin que l'URL principale de votre site redirige également vers une route préfixée et localisée pour votre langue par défaut. Lorsque `prefixDefaultLocale: true` est défini, vous pouvez également configurer `redirectToDefaultLocale: true`. Cela garantira que l'URL de la page d'accueil (`/`) générée par `src/pages/index.astro` redirigera vers `/[defaultLocale]/`.
 
 ### `manual`
 
@@ -216,21 +212,21 @@ export const onRequest = defineMiddleware(async (ctx, next) => {
 
 #### Fonction middleware
 
-La fonction [`middleware`](#fonction-middleware) crée manuellement le middleware i18n d'Astro. Cela vous permet d'étendre le routage i18n d'Astro plutôt que de le remplacer complètement. 
+La fonction [`middleware()`](/fr/reference/modules/astro-i18n/#middleware) crée manuellement le middleware i18n d'Astro. Cela vous permet d'étendre le routage i18n d'Astro plutôt que de le remplacer complètement. 
 
-Vous pouvez exécuter `middleware` avec des [options de routage](#routing) en combinaison avec votre propre middleware, en utilisant l'utilitaire [`sequence`](/fr/reference/modules/astro-middleware/#sequence) pour déterminer l'ordre :
+Vous pouvez exécuter `middleware()` avec des [options de routage](#routing) en combinaison avec votre propre middleware, en utilisant l'utilitaire [`sequence()`](/fr/reference/modules/astro-middleware/#sequence) pour déterminer l'ordre :
 
 ```js title="src/middleware.js"
-import {defineMiddleware, sequence} from "astro:middleware";
+import { defineMiddleware, sequence } from "astro:middleware";
 import { middleware } from "astro:i18n"; // La propre configuration de routage i18n d'Astro
 
 export const userMiddleware = defineMiddleware(async (ctx, next) => {
   // cette réponse pourrait venir du middleware i18n d'Astro, et elle pourrait renvoyer un status 404
   const response = await next();
   // la page /about est une exception et nous voulons la restituer
-  if (ctx.url.startsWith("/about")) {
+  if (ctx.url.pathname.startsWith("/about")) {
     return new Response("About page", {
-      status: 200
+      status: 200,
     });
   } else {
     return response;
@@ -242,8 +238,9 @@ export const onRequest = sequence(
   userMiddleware,
   middleware({
     redirectToDefaultLocale: false,
-    prefixDefaultLocale: true
-  })
+    prefixDefaultLocale: true,
+    fallbackType: "redirect",
+  }),
 )
 ```
 
@@ -277,14 +274,14 @@ export default defineConfig({
 })
 ```
 
-Tous les paramètres régionaux (`locales`) non associés suivront votre configuration `prefixDefaultLocales`. Cependant, même si la valeur est `false`, les fichers de page pour votre langue par défaut (`defaultLocale`) doivent également exister à l'intérieur d'un dossier localisé. Pour la configuration ci-dessus, un dossier `/en/` est requis.
+Tous les paramètres régionaux (`locales`) non associés suivront votre configuration `prefixDefaultLocales`.
 
 Avec la configuration ci-dessus :
 
 - Le fichier `/fr/about.astro` créera l'URL `https://fr.example.com/about`.
 - Le fichier `/es/about.astro` créera l'URL `https://example.es/about`.
 - Le fichier `/ja/about.astro` créera l'URL `https://example.com/ja/about`.
-- Le fichier `/en/about.astro` créera l'URL `https://example.com/about`.
+- Le fichier `/about.astro` créera l'URL `https://example.com/about`.
 
 Les URL ci-dessus seront également renvoyées par les fonctions `getAbsoluteLocaleUrl()` et `getAbsoluteLocaleUrlList()`.
 

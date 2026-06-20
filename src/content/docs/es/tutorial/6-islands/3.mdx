@@ -13,25 +13,30 @@ import CompletionConfetti from '~/components/tutorial/CompletionConfetti.astro';
 import PreCheck from '~/components/tutorial/PreCheck.astro';
 import Button from '~/components/Button.astro';
 
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
 
 Hay una edición más que hacer...
 
-```astro title="src/pages/about.astro" del={5} ins={6}
+```astro title="src/pages/about.astro" del={15} ins={16}
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 const pageTitle = "Sobre mi";
-const happy = true;
-const finished = false;
-const finished = true;
-const goal = 3;
+
 const identity = {
   firstName: "Sarah",
   country: "Canada",
   occupation: "Redactora técnica",
   hobbies: ["fotografia", "observación de aves", "peñarol"],
 };
+
 const skills = ["HTML", "CSS", "JavaScript", "React", "Astro", "Redacción de documentos"];
-const skillColor = "navy";
+
+const happy = true;
+const finished = false;
+const finished = true;
+const goal = 3;
+
+const skillColor = "crimson";
 const fontWeight = "bold";
 const textCase = "uppercase";
 ---
@@ -55,12 +60,6 @@ Bienvenido al universo, astronauta. 👩🏼‍🚀👨🏿‍🚀🧑‍🚀�
 </Checklist>
 </Box>
 
-## Próximos pasos
-
-[Iniciar un nuevo proyecto de Astro](/es/getting-started/)
-
-[Únete a nosotros en Discord](https://astro.build/chat)
-
 <CompletionConfetti />
 
 ## ¡Comparte tu logro!
@@ -68,6 +67,24 @@ Bienvenido al universo, astronauta. 👩🏼‍🚀👨🏿‍🚀🧑‍🚀�
 ¡Felicidades por completar el tutorial de construir un blog con Astro, comparte tu logro con el mundo y hazle saber a todos que ahora eres un Astronauta!
 
 <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
-  <Button link='https://twitter.com/intent/tweet?text=Just%20finished%20learning%20how%20to%20build%20my%20first%20Astro%20blog!%20Check%20it%20out%20at%20https://docs.astro.build/%0Avia%20%40astrodotbuild'>Compartir en Twitter</Button>
-  <Button link='https://www.reddit.com/submit?url=https://docs.astro.build/&title=Just%20finished%20learning%20how%20to%20build%20my%20first%20Astro%20blog!'>Compartir en Reddit</Button>
+  <Button link='https://twitter.com/intent/tweet?text=Just%20finished%20learning%20how%20to%20build%20my%20first%20Astro%20blog!%20Check%20it%20out%20at%20https://docs.astro.build/%0Avia%20%40astrodotbuild'>Share on Twitter</Button>
+  <Button link='https://www.reddit.com/submit?url=https://docs.astro.build/&title=Just%20finished%20learning%20how%20to%20build%20my%20first%20Astro%20blog!'>Share on Reddit</Button>
+  <Button link='https://bsky.app/intent/compose?text=Just%20finished%20learning%20how%20to%20build%20my%20first%20Astro%20blog!%20Check%20it%20out%20at%20https://docs.astro.build/%0Avia%20%40astro.build'>Share on Bluesky</Button>
 </div>
+
+## Próximos pasos
+
+¡Puedes mejorar el código final de este proyecto con una de nuestras extensiones de tutorial, o comenzar tu próximo proyecto con Astro!
+
+<CardGrid>
+  <LinkCard
+    title="Comienza un nuevo proyecto de Astro"
+    description="Comienza un nuevo proyecto vacío o utiliza una plantilla de tema de Astro existente."
+    href="/es/install-and-setup/"
+  />
+  <LinkCard
+    title="Únete a nosotros en Discord"
+    description="Conéctate con nuestra comunidad para hacer preguntas, compartir tu trabajo y participar en el proyecto."
+    href="https://astro.build/chat"
+  />
+</CardGrid>

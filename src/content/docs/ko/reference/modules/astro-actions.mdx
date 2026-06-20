@@ -5,7 +5,7 @@ sidebar:
 i18nReady: true
 tableOfContents:
   minHeadingLevel: 2
-  maxHeadingLevel: 6
+  maxHeadingLevel: 3
 ---
 import Since from '~/components/Since.astro';
 import ReadMore from '~/components/ReadMore.astro';
@@ -42,7 +42,7 @@ import {
 
 ```ts title="src/actions/index.ts"
 import { defineAction } from 'astro:actions';
-import { z } from 'astro:schema';
+import { z } from 'astro/zod';
 
 export const server = {
   getGreeting: defineAction({
@@ -76,7 +76,7 @@ export const server = {
 **타입:** `ZodType | undefined`
 </p>
 
-런타임에 핸들러 입력의 유효성을 검사하기 위해 Zod 유효성 검사기 (예: Zod 객체, Zod 구별된 유니온)를 허용하는 선택적 속성입니다. 액션이 유효성 검사에 실패하면 [`BAD_REQUEST` 오류](#actionerror)가 반환되고 `handler`가 호출되지 않습니다.
+런타임에 핸들러 입력의 유효성을 검사하기 위해 [Zod 유효성 검사기](/ko/reference/modules/astro-zod/#일반적인-데이터-타입-유효성-검사기) (예: Zod 객체, Zod 구별된 유니온)를 허용하는 선택적 속성입니다. 액션이 유효성 검사에 실패하면 [`BAD_REQUEST` 오류](#actionerror)가 반환되고 `handler`가 호출되지 않습니다.
 
 `input`을 생략하면 `handler`는 JSON 요청의 경우 `unknown` 타입의 입력을, 양식 요청의 경우 `FormData` 타입의 입력을 받습니다.
 
@@ -277,7 +277,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 });
 ```
 
-##### `calledFrom`
+##### `action.calledFrom`
 
 <p>
 
@@ -286,7 +286,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
 액션이 RPC 함수 또는 HTML 양식 액션을 사용하여 호출되었는지 여부입니다.
 
-##### `name`
+##### `action.name`
 
 <p>
 
@@ -295,7 +295,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
 액션의 이름입니다. 리디렉션 중에 액션 결과의 출처를 추적하는 데 유용합니다.
 
-##### `handler()`
+##### `action.handler()`
 
 <p>
 
@@ -443,6 +443,7 @@ import type {
   ActionAPIContext,
   ActionClient,
   ActionErrorCode,
+  ActionInputSchema,
   ActionReturnType,
   SafeResult,
  } from 'astro:actions';
@@ -487,7 +488,7 @@ button?.addEventListener('click', async () => {
 
 또는 객체로 사용해 `queryString`에 접근하거나, 대신 `orThrow()` 메서드를 호출할 수도 있습니다.
 
-#### `queryString` 속성
+#### `ActionClient.queryString`
 
 <p>
 
@@ -509,7 +510,7 @@ feedbackUrl.search = actions.myAction.queryString;
 <FeedbackForm sendTo={feedbackUrl.pathname} />
 ```
 
-#### `orThrow()` 속성
+#### `ActionClient.orThrow()`
 
 <p>
 
@@ -545,6 +546,32 @@ button?.addEventListener('click', async () => {
 </p>
 
 [IANA에서 정의한](https://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml) 표준 HTTP 상태 코드의 유니언 타입으로, 사람이 읽을 수 있는 버전의 대문자 문자열이며, 언더스코어로 구분합니다. (예: `BAD_REQUEST` 또는 `PAYLOAD_TOO_LARGE`)
+
+### `ActionInputSchema`
+
+<p>
+
+**타입:** `ZodType`
+<Since v="5.16.0" />
+</p>
+
+Zod 스키마를 기반으로 액션 입력의 TypeScript 타입을 추론하는 유틸리티 타입입니다. 이는 자체 타입 정의에서 액션의 [`input` 유효성 검사기 타입](#input-유효성-검사기)을 객체로 참조할 때 유용할 수 있습니다.
+
+[`input` 유효성 검사기](#input-유효성-검사기)가 생략되면 `never`를 반환합니다.
+
+다음은 이름이 `contact`인 액션에서 `ActionInputSchema`를 사용하는 예시입니다.
+* 액션 입력에 대한 Zod 스키마 타입을 검색합니다.
+* 액션 유효성 검사기의 예상 입력 타입을 검색합니다.
+
+```astro title="src/components/Form.astro" {5}
+---
+import { actions, ActionInputSchema } from 'astro:actions';
+import { z } from 'astro/zod';
+
+type ContactSchema = ActionInputSchema<typeof actions.contact>;
+type ContactInput = z.input<ContactSchema>;
+---
+```
 
 ### `ActionReturnType`
 

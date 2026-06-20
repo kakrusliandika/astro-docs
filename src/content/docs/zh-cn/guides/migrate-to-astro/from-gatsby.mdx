@@ -36,7 +36,7 @@ Gatsby 和 Astro 共享一些相似性，这将帮助你迁移你的项目：
 
 - [Astro 组件](/zh-cn/basics/astro-components/)不是以返回页面模板的出口函数形式编写的。相反，你将你的代码分割为专门为你的 JavaScript 设计的 "代码围栏" 和专门为你生成的 HTML 设计的主体。
 
-- [本地文件数据](/zh-cn/guides/imports/)：Gatsby 使用 GraphQL 从你的项目文件中检索数据。Astro 使用 ESM imports 和顶层 await 函数（例如 [`import.meta.glob()`](/zh-cn/guides/imports/#importmetaglob), [`getCollection()`](/zh-cn/guides/content-collections/#查询集合)）从你的项目文件中导入数据。你可以手动向你的 Astro 项目添加 GraphQL，但默认情况下不包含它。
+- [本地文件数据](/zh-cn/guides/imports/)：Gatsby 使用 GraphQL 从你的项目文件中检索数据。Astro 使用 ESM imports 和顶层 await 函数（例如 [`import.meta.glob()`](/zh-cn/guides/imports/#importmetaglob), [`getCollection()`](/zh-cn/guides/content-collections/#查询构建时集合)）从你的项目文件中导入数据。你可以手动向你的 Astro 项目添加 GraphQL，但默认情况下不包含它。
 
 ## 转换你的 Gatsby 项目
 
@@ -80,12 +80,12 @@ Gatsby 和 Astro 共享一些相似性，这将帮助你迁移你的项目：
 然后，将你现有的 Gatsby 项目文件复制到你的新 Astro 项目中，放在 `src` 外面的单独文件夹中。
 
 :::tip
-访问 https://astro.new 查看完整的官方起始模板列表，以及在 IDX、StackBlitz、CodeSandbox 或 Gitpod 中打开新项目的链接。
+访问 https://astro.new 查看完整的官方起始模板列表，以及在 StackBlitz 或者 CodeSandbox 中打开新项目的链接。
 :::
 
 ### 安装集成（可选）
 
-在将你的 Gatsby 项目转换为 Astro 时，你可能会发现安装一些[Astro 的可选集成](/zh-cn/guides/integrations-guide/)很有用：
+在将你的 Gatsby 项目转换为 Astro 时，你可能会发现安装一些[Astro 的可选集成](/zh-cn/guides/integrations/)很有用：
 
 - **@astrojs/react**：在你的新 Astro 站点中重用一些现有的 React UI 组件，或者继续使用 React 组件。
 
@@ -333,7 +333,7 @@ import rocket from '../assets/rocket.png';
 <img src={rocket.src} alt="太空中的火箭飞船。">
 ```
 
-Astro 的 `<Image />` 组件只能在 `.astro` 和 `.mdx` 文件中工作。查看该组件可用的[完整组件属性列表](/zh-cn/reference/modules/astro-assets/#image-属性)，并注意它与 Gatsby 的属性有一些不同。
+Astro 的 `<Image />` 组件只能在 `.astro` 和 `.mdx` 文件中工作。查看该组件可用的[完整组件属性列表](/zh-cn/reference/modules/astro-assets/#image-)，并注意它与 Gatsby 的属性有一些不同。
 
 要继续使用标准 Markdown 语法 (`![]()`) [在 Markdown (`.md`) 文件中使用图像](/zh-cn/guides/images/#markdown-文件中的图像)，你可能需要更新链接。对于本地图像，不支持在 `.md` 文件中直接使用 HTML `<img>` 标签，必须转换为 Markdown 语法。
 
@@ -354,7 +354,7 @@ Astro 的 `<Image />` 组件只能在 `.astro` 和 `.mdx` 文件中工作。查�
 
 删除所有引用 GraphQL 查询的地方，然后使用 [`import.meta.glob()`](/zh-cn/guides/imports/#importmetaglob) 来访问你的本地文件中的数据。
 
-或者，如果使用内容集合，使用 [`getEntry()` 和 `getCollection()`](/zh-cn/guides/content-collections/#查询集合) 在 `src/content/` 中查询你的 Markdown 和 MDX 文件。
+或者，如果使用内容集合，使用 [`getEntry()` 和 `getCollection()`](/zh-cn/guides/content-collections/#从内容生成路由) 在 `src/content/` 中查询你的 Markdown 和 MDX 文件。
 
 这些数据请求是在 Astro 组件的 frontmatter 中使用数据进行的。
 

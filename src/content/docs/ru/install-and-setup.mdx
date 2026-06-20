@@ -4,9 +4,6 @@ sidebar:
   label: Установка
 description: 'Как установить Astro и начать новый проект.'
 i18nReady: true
-banner:
-  content: |
-    Astro v5 уже здесь! <a href="/ru/guides/upgrade-to/v5/">Узнайте, как обновить ваш сайт</a>
 ---
 import { Tabs, TabItem, FileTree, CardGrid, LinkCard, Steps } from '@astrojs/starlight/components';
 import PackageManagerTabs from '~/components/tabs/PackageManagerTabs.astro';
@@ -95,7 +92,7 @@ Astro создан на основе Vite, который по умолчани�
 
 ### Добавление интеграций
 
-Вы можете создать новый Astro-проект и сразу установить любые [официальные интеграции](/ru/guides/integrations-guide/) или интеграции от сообщества, которые поддерживают команду `astro add`, передав аргумент `--add` в команду `create astro`.
+Вы можете создать новый Astro-проект и сразу установить любые [официальные интеграции](/ru/guides/integrations/) или интеграции от сообщества, которые поддерживают команду `astro add`, передав аргумент `--add` в команду `create astro`.
 
 Запустите следующую команду в терминале, заменив названия интеграций на те, которые поддерживают команду `astro add`:
 
@@ -289,7 +286,7 @@ Astro создан на основе Vite, который по умолчани�
     export default defineConfig({});
     ```
 
-    Если вы хотите включить [компоненты фреймворка пользовательского интерфейса](/ru/guides/framework-components/), такие как React, Svelte и др. Если вы используете в своем проекте другие инструменты, такие как MDX или Partytown, здесь вы сможете [вручную импортировать и настроить нужные интеграции](/ru/guides/integrations-guide/).
+    Если вы хотите включить [компоненты фреймворка пользовательского интерфейса](/ru/guides/framework-components/), такие как React, Svelte и др. Если вы используете в своем проекте другие инструменты, такие как MDX или Partytown, здесь вы сможете [вручную импортировать и настроить нужные интеграции](/ru/guides/integrations/).
 
     Для получения дополнительной информации читайте [справочник по конфигурации API](/ru/reference/configuration-reference/).
 

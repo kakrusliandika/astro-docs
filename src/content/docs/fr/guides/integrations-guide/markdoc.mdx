@@ -113,7 +113,7 @@ Les fichiers Markdoc ne peuvent être utilisés que dans les collections de cont
       - quick-start.mdoc
 </FileTree>
 
-Interrogez ensuite votre collection à l'aide des [API de collections de contenus](/fr/guides/content-collections/#interroger-les-collections) :
+Ensuite, [interrogez et affichez vos articles et collections](/fr/guides/content-collections/#interroger-les-collections-consommées-lors-de-la-compilation) :
 
 ```astro title="src/pages/why-markdoc.astro"
 ---
@@ -419,6 +419,7 @@ Pour remplacer le nœud d'image par défaut, vous pouvez configurer un composant
 
     ```astro title="src/components/MarkdocImage.astro"
     ---
+    import type { ImageMetadata } from "astro";
     import { Image } from "astro:assets";
     interface Props {
       src: ImageMetadata;
@@ -431,8 +432,9 @@ Pour remplacer le nœud d'image par défaut, vous pouvez configurer un composant
 
 2. Le composant `<Image />` requiert `width` et `height` pour les images à distance qui ne peuvent pas être fournies à l'aide de la syntaxe `![]()`. Pour éviter les erreurs lors de l'utilisation d'images distantes, mettez à jour votre composant pour afficher une balise HTML standard `<img>` lorsqu'une URL distante `src` est trouvée :
 
-    ```astro title="src/components/MarkdocImage.astro" ins="| string" del={9} ins={10-12}
+    ```astro title="src/components/MarkdocImage.astro" ins="| string" del={10} ins={11-13}
     ---
+    import type { ImageMetadata } from "astro";
     import { Image } from "astro:assets";
     interface Props {
       src: ImageMetadata | string;
@@ -484,7 +486,7 @@ Les étapes suivantes permettent de créer une balise image Markdoc personnalis�
 
     ```astro title="src/components/MarkdocFigure.astro"
     ---
-    // src/components/MarkdocFigure.astro
+    import type { ImageMetadata } from "astro";
     import { Image } from "astro:assets";
 
     interface Props {
@@ -663,7 +665,7 @@ Lors de l'utilisation de balises imbriquées dans Markdoc, il peut être utile d
 
 * Le [modèle de départ Astro Markdoc](https://github.com/withastro/astro/tree/latest/examples/with-markdoc) montre comment utiliser les fichiers Markdoc dans votre projet Astro.
 
-[astro-integration]: /fr/guides/integrations-guide/
+[astro-integration]: /fr/guides/integrations/
 
 [astro-components]: /fr/basics/astro-components/
 

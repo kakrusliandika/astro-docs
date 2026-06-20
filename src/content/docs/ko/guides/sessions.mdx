@@ -3,6 +3,9 @@ title: 세션
 description: 요청 시 렌더링되는 페이지에 대한 요청 간에 데이터를 공유합니다.
 i18nReady: true
 ---
+
+import { Steps } from '@astrojs/starlight/components';
+import PackageManagerTabs from '~/components/tabs/PackageManagerTabs.astro';
 import Since from '~/components/Since.astro';
 import ReadMore from '~/components/ReadMore.astro';
 
@@ -27,27 +30,93 @@ const cart = await Astro.session?.get('cart');
 
 세션 데이터를 저장하기 위해 스토리지 드라이버가 필요합니다. [Node](/ko/guides/integrations-guide/node/#세션), [Cloudflare](/ko/guides/integrations-guide/cloudflare/#세션) 및 [Netlify](/ko/guides/integrations-guide/netlify/#세션) 어댑터는 자동으로 기본 드라이버를 구성하지만, 현재 다른 어댑터를 사용하기 위해서는 [드라이버를 수동으로 지정](/ko/reference/configuration-reference/#sessiondriver)해야 합니다.
 
-```js title="astro.config.mjs" ins={4}
-  {
-    adapter: vercel(),
-    session: {
-      driver: "redis",
-    },
+```js title="astro.config.mjs" ins={7-9} ins=" sessionDrivers "
+import { defineConfig, sessionDrivers } from 'astro/config'
+import vercel from '@astrojs/vercel'
+
+export default defineConfig({
+  adapter: vercel()
+  session: {
+    driver: sessionDrivers.lruCache({
+      max: 800,
+    }),
   }
+})
 ```
 
 <ReadMore>
-  스토리지 드라이버 설정 및 기타 구성 가능한 옵션에 대한 자세한 내용은 [`session` 구성 옵션](/ko/reference/configuration-reference/#세션-옵션)을 참조하세요.
+스토리지 드라이버 설정 및 기타 구성 가능한 옵션에 대한 자세한 내용은 [`session` 구성 옵션](/ko/reference/configuration-reference/#세션-옵션)을 참조하세요.
 </ReadMore>
 
+### 런타임에 구성 재정의하기
+
+기본적으로 세션 드라이버는 빌드 시점에 구성되며, 사용된 모든 [환경 변수](/ko/guides/environment-variables/)는 빌드 결과물에 포함됩니다. 즉, 런타임에는 구성을 재정의할 수 없습니다.
+
+다른 구성이 필요한 경우 (예: 외부 서비스에 연결), 이를 별도의 파일에 정의하세요. 그런 다음 해당 파일을 [드라이버의 진입점](/ko/reference/session-driver-reference/#entrypoint)으로 사용하세요.
+
+다음 예시는 [Unstorage 호환성](/ko/reference/session-driver-reference/#unstorage-호환성)을 활용하여 고유한 진입점에서 Redis 드라이버를 구성하는 방법을 보여줍니다.
+
+<Steps>
+1. [`unstorage` 패키지](https://unstorage.unjs.io/guide)를 설치합니다.
+    <PackageManagerTabs>
+      <Fragment slot="npm">
+        ```sh
+        npm install unstorage
+        ```
+      </Fragment>
+      <Fragment slot="pnpm">
+        ```sh
+        pnpm add unstorage
+        ```
+      </Fragment>
+      <Fragment slot="yarn">
+        ```sh
+        yarn add unstorage
+        ```
+      </Fragment>
+    </PackageManagerTabs>
+
+2. 드라이버 구성을 위한 파일 (예: `src/session-driver.ts`)을 만들고 드라이버 인스턴스를 반환하는 기본 함수를 내보냅니다.
+    ```ts title="src/session-driver.ts"
+    import type { SessionDriver } from "astro";
+    import redisDriver from "unstorage/drivers/redis";
+    import { REDIS_HOST, REDIS_PORT } from "astro:env";
+
+    export default function (): SessionDriver {
+      return redisDriver({
+        host: REDIS_HOST,
+        port: REDIS_PORT,
+      });
+    }
+    ```
+
+3. Astro 설정에서 이 파일을 드라이버의 진입점으로 사용합니다.
+    ```js title="astro.config.mjs" {11-13}
+    import { defineConfig, envField, sessionDrivers } from "astro/config";
+    import vercel from "@astrojs/vercel";
+
+    export default defineConfig({
+      adapter: vercel(),
+      env: {
+        REDIS_HOST: envField.string({ context: "server", access: "public", default: "localhost" }),
+        REDIS_PORT: envField.number({ context: "server", access: "public", default: 6379 }),
+      },
+      session: {
+        driver: {
+          entrypoint: new URL('./src/session-driver.ts', import.meta.url),
+        }
+      }
+    });
+    ```
+</Steps>
 
 ## 세션 데이터와 상호작용
 
 [`session` 객체](/ko/reference/api-reference/#session)를 사용하면 저장된 사용자 상태(예: 장바구니에 항목 추가) 및 세션 ID(예: 로그아웃 시 세션 ID 쿠키 삭제)와 상호 작용할 수 있습니다. 이 객체는 Astro 컴포넌트 및 페이지에서는 `Astro.session`으로, API 엔드포인트, 미들웨어 및 액션에서는 `context.session` 객체로 접근할 수 있습니다.
 
-세션은 처음 사용될 때 자동으로 생성되며, [`session.regenerate()`](/ko/reference/api-reference/#regenerate)를 사용하여 언제든지 재생성하거나 [`session.destroy()`](/ko/reference/api-reference/#destroy)를 사용하여 파괴할 수 있습니다.
+세션은 처음 사용될 때 자동으로 생성되며, [`session.regenerate()`](/ko/reference/api-reference/#sessionregenerate)를 사용하여 언제든지 재생성하거나 [`session.destroy()`](/ko/reference/api-reference/#sessiondestroy)를 사용하여 파괴할 수 있습니다.
 
-대부분의 사용 사례에서는 [`session.get()`](/ko/reference/api-reference/#get)과 [`session.set()`](/ko/reference/api-reference/#set)만 사용하면 됩니다.
+대부분의 사용 사례에서는 [`session.get()`](/ko/reference/api-reference/#sessionget)과 [`session.set()`](/ko/reference/api-reference/#sessionset)만 사용하면 됩니다.
 
 <ReadMore>
 자세한 내용은 [세션 API 참조](/ko/reference/api-reference/#session)를 확인하세요.
@@ -71,9 +140,11 @@ const cart = await Astro.session?.get('cart');
 API 엔드포인트에서는 `context` 객체에서 세션 객체를 사용할 수 있습니다. 예를 들어, 장바구니에 항목을 추가하려면 다음과 같이 할 수 있습니다.
 
 ```ts title="src/pages/api/addToCart.ts" "context.session"
+import type { APIContext } from "astro";
+
 export async function POST(context: APIContext) {
   const cart = await context.session?.get('cart') || [];
-	const data = await context.request.json<{ item: string }>();
+  const data = await context.request.json();
   if(!data?.item) {
     return new Response('Item is required', { status: 400 });
   }
@@ -89,7 +160,7 @@ export async function POST(context: APIContext) {
 
 ```ts title="src/actions/addToCart.ts" "context.session"
 import { defineAction } from 'astro:actions';
-import { z } from 'astro:schema';
+import { z } from 'astro/zod';
 
 export const server = {
   addToCart: defineAction({

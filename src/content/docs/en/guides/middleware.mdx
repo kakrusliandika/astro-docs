@@ -23,6 +23,7 @@ Middleware also allows you to set and share request-specific information across 
         // intercept data from a request
         // optionally, modify the properties in `locals`
         context.locals.title = "New title";
+        context.locals.property = "information";
 
         // return a Response or the result of calling `next()`
         return next();
@@ -53,7 +54,7 @@ This is an optional argument passed to `onRequest()` that may contain the `local
 This `locals` object is forwarded across the request handling process and is available as a property to [`APIContext`](/en/reference/api-reference/#locals) and [`AstroGlobal`](/en/reference/api-reference/#locals). This allows data to be shared between middlewares, API routes, and `.astro` pages. This is useful for storing request-specific data, such as user data, across the rendering step.
 
 :::tip[Integration properties]
-[Integrations](/en/guides/integrations-guide/) may set properties and provide functionality through the `locals` object. If you are using an integration, check its documentation to ensure you are not overriding any of its properties or doing unnecessary work.
+[Integrations](/en/guides/integrations/) may set properties and provide functionality through the `locals` object. If you are using an integration, check its documentation to ensure you are not overriding any of its properties or doing unnecessary work.
 :::
 
 You can store any type of data inside `locals`: strings, numbers, and even complex data types such as functions and maps.
@@ -62,10 +63,12 @@ You can store any type of data inside `locals`: strings, numbers, and even compl
 export function onRequest (context, next) {
     // intercept data from a request
     // optionally, modify the properties in `locals`
-    context.locals.user.name = "John Wick";
+    context.locals.user = { id: 1, name: "John Wick" };
     context.locals.welcomeTitle = () => {
-        return "Welcome back " + locals.user.name;
+        return "Welcome back " + context.locals.user.name;
     };
+    context.locals.orders = new Map([["1", { product: "socks" }]]);
+    context.locals.property = "information";
 
     // return a Response or the result of calling `next()`
     return next();
@@ -114,7 +117,7 @@ export const onRequest = async (context, next) => {
 
 ## Middleware types
 
-You can import and use the utility function `defineMiddleware()` to take advantage of type safety:
+You can import and use the utility function [`defineMiddleware()`](/en/reference/modules/astro-middleware/#definemiddleware) to take advantage of type safety:
 
 ```ts
 // src/middleware.ts
@@ -205,7 +208,7 @@ validation response
 
 <p><Since v="4.13.0" /></p>
 
-The `APIContext` exposes a method called `rewrite()` which works the same way as [Astro.rewrite](/en/guides/routing/#rewrites).
+The `APIContext` exposes a method called [`rewrite()`](/en/reference/api-reference/#rewrite) which works the same way as [Astro.rewrite](/en/guides/routing/#rewrites).
 
 Use `context.rewrite()` inside middleware to display a different page's content without [redirecting](/en/guides/routing/#dynamic-redirects) your visitor to a new page. This will trigger a new rendering phase, causing any middleware to be re-executed.
 
@@ -249,7 +252,7 @@ export function onRequest (context, next) {
 
 The `next()` function accepts the same payload of [the `Astro.rewrite()` function](/en/reference/api-reference/#rewrite). The location of the rewrite path can be provided as a string, URL, or `Request`.
 
-When you have multiple middleware functions chained via [sequence()](#chaining-middleware), submitting a path to `next()` will rewrite the `Request` in place and the middleware will not execute again. The next middleware function in the chain will receive the new `Request` with its updated `context`:
+When you have multiple middleware functions chained via [sequence()](#chaining-middleware), submitting a path to `next()` will rewrite the `Request` in place and the middleware will not execute again. The next middleware function in the chain will receive the new `Request` with its updated `context`.
 
 Calling `next()` with this signature will create a new `Request` object using the old `ctx.request`. This means that trying to consume `Request.body`, either before or after this rewrite, will throw a runtime error. This error is often raised with [Astro Actions that use HTML forms](/en/guides/actions/#call-actions-from-an-html-form-action). In these cases, we recommend handling rewrites from your Astro templates using `Astro.rewrite()` instead of using middleware.    
 

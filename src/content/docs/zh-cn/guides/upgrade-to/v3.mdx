@@ -327,7 +327,7 @@ Astro v3.0 将 `astro check` 命令从 Astro 核心中移出，并且现在需�
 
 在 Astro v2.x 中，`build.excludeMiddleware` 和 `build.split` 用于在 SSR 模式下使用适配器时更改特定文件的产出方式。
 
-Astro v3.0 用新的 [SSR 适配器配置选项](/zh-cn/guides/integrations-guide/#官方集成) 替换了这些构建配置选项，以执行相同的任务：`edgeMiddleware` 和 `functionPerRoute`。
+Astro v3.0 用新的 [SSR 适配器配置选项](/zh-cn/guides/integrations/#官方集成) 替换了这些构建配置选项，以执行相同的任务：`edgeMiddleware` 和 `functionPerRoute`。
 
 #### 我应该怎么做？
 
@@ -788,7 +788,7 @@ import rocket from '../images/rocket.svg';
 <Steps>
 1. 移除 `@astrojs/image` 集成。
 
-    你必须通过卸载并从你的 `astro.config.mjs` 文件中删除它，来 [移除集成](/zh-cn/guides/integrations-guide/#移除集成)。
+    你必须通过卸载并从你的 `astro.config.mjs` 文件中删除它，来 [移除集成](/zh-cn/guides/integrations/#移除集成)。
 
     ```js del={3,7}
     // astro.config.mjs
@@ -825,7 +825,7 @@ import rocket from '../images/rocket.svg';
 
     将所有 `import` 语句从 `@astrojs/image/components` 更改为 `astro:assets`，以便使用新的内置 `<Image />` 组件。
 
-    移除任何当前不[支持的图像属性](/zh-cn/reference/modules/astro-assets/#image-属性)。
+    移除任何当前不[支持的图像属性](/zh-cn/reference/modules/astro-assets/#image-)。
 
     例如，`aspectRatio` 不再支持，因为它现在可以从 `width` 和 `height` 属性中自动推断出来。
 

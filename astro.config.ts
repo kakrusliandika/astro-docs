@@ -7,15 +7,16 @@ import { sidebar } from './astro.sidebar';
 import { devServerFileWatcher } from './config/integrations/dev-server-file-watcher';
 import { sitemap } from './config/integrations/sitemap';
 import { localesConfig } from './config/locales';
-import { starlightPluginLlmsTxt } from './config/plugins/llms-txt';
 import { starlightPluginSmokeTest } from './config/plugins/smoke-test';
 import { rehypeTasklistEnhancer } from './config/plugins/rehype-tasklist-enhancer';
 import { remarkFallbackLang } from './config/plugins/remark-fallback-lang';
 
-/* https://docs.netlify.com/configure-builds/environment-variables/#read-only-variables */
-const NETLIFY_PREVIEW_SITE = process.env.CONTEXT !== 'production' && process.env.DEPLOY_PRIME_URL;
+const previewBranch = process.env.GITHUB_HEAD_REF;
+const previewSite = previewBranch
+	? `https://${previewBranch}.previews.docs.astro.build/`
+	: undefined;
 
-const site = NETLIFY_PREVIEW_SITE || 'https://docs.astro.build/';
+const site = previewSite || 'https://docs.astro.build/';
 
 // https://astro.build/config
 export default defineConfig({
@@ -69,13 +70,16 @@ export default defineConfig({
 				},
 			],
 			disable404Route: true,
-			plugins: [starlightPluginSmokeTest(), starlightPluginLlmsTxt()],
+			plugins: [starlightPluginSmokeTest()],
 		}),
 		sitemap(),
 	],
 	trailingSlash: 'always',
 	scopedStyleStrategy: 'where',
 	compressHTML: false,
+	experimental: {
+		rustCompiler: true,
+	},
 	markdown: {
 		// Override with our own config
 		smartypants: false,

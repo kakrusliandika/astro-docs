@@ -259,9 +259,11 @@ ISR 함수 요청에는 정적 모드의 [요청](/ko/reference/api-reference/#r
 
 ##### 시간 기반 무효화
 
-`expiration` 값을 초 단위로 구성하여 경로를 캐시하는 시간을 변경할 수 있습니다.
+기본적으로 ISR이 활성화되면 라우트는 [Vercel의 캐시 보호](https://vercel.com/docs/incremental-static-regeneration#differences-between-isr-and-cache-control-headers)를 사용하며 모든 Cache-Control 헤더는 무시됩니다. `expiration` 값(초 단위)을 구성하여 라우트가 캐시되는 기간을 제어할 수 있습니다. 이는 애플리케이션에서 설정한 Cache-Control 지시어도 무시되지 않고 반영된다는 것을 의미합니다.
 
-```js title="astro.config.mjs" {7-10}
+다음 예시는 첫 번째 요청 시 모든 페이지를 캐시하고 1일 동안 저장하도록 `expiration`을 정의합니다.
+
+```js title="astro.config.mjs" {7-9}
 import { defineConfig } from 'astro/config';
 import vercel from '@astrojs/vercel';
 
@@ -269,18 +271,16 @@ export default defineConfig({
   // ...
   adapter: vercel({
     isr: {
-      // 첫 번째 요청 시 모든 페이지를 캐시하고 1일 동안 저장합니다.
       expiration: 60 * 60 * 24,
     },
   }),
 });
 ```
 
-##### 캐싱에서 경로 제외
+##### 요청 시 무효화
 
-Vercel의 [초안 모드](https://vercel.com/docs/build-output-api/v3/features#draft-mode) 또는 [주문형 증분형 정적 재생성 (ISR)](https://vercel.com/docs/build-output-api/v3/features#on-demand-incremental-static-regeneration-isr)을 구현하려면 bypass 토큰을 생성하고 이를 캐싱에서 제외할 경로와 함께 `isr` 구성에 제공할 수 있습니다.
-
-```js title="astro.config.mjs" {6-15}
+캐시된 페이지를 프로그래밍 방식으로 무효화하려면 바이패스 토큰을 생성하고 이를 `isr` 구성에 제공하세요.
+```js title="astro.config.mjs" {6-9}
 import { defineConfig } from 'astro/config';
 import vercel from '@astrojs/vercel';
 
@@ -289,9 +289,31 @@ export default defineConfig({
     isr: {
       // 여러분이 생성하는 무작위 비밀 문자열입니다.
       bypassToken: '005556d774a8',
+    }
+  })
+})
+```
+
+캐시된 페이지를 무효화하려면, 페이지 URL로 HEAD 또는 GET 요청을 보내고 `x-prerender-revalidate` 헤더를 바이패스 토큰으로 설정하면 됩니다. 자세한 내용은 [Vercel의 온디맨드 ISR 문서](https://vercel.com/docs/build-output-api/v3/features#on-demand-incremental-static-regeneration-isr)를 참조하세요.
+
+
+##### 드래프트 모드
+
+ISR 캐시를 우회하고 최신 콘텐츠를 렌더링하려면 (예: 게시되지 않은 CMS 콘텐츠 미리보기), [Vercel의 드래프트 모드](https://vercel.com/docs/build-output-api/v3/features#draft-mode)를 사용하세요. 이를 위해서는 설정에서 [`bypassToken`을 정의](#요청-시-무효화)하고 페이지에서 그 값을 재사용하여 `__prerender_bypass`라는 [쿠키를 설정](/ko/guides/on-demand-rendering/#쿠키)해야 합니다.
+
+##### 캐싱에서 경로 제외
+
+`exclude` 옵션을 사용하여 특정 라우트가 ISR에 의해 캐시되는 것을 방지할 수 있습니다. 이러한 경로는 요청 시 항상 최신 상태로 렌더링됩니다.
+```js title="astro.config.mjs" {6-13}
+import { defineConfig } from 'astro/config';
+import vercel from '@astrojs/vercel';
+
+export default defineConfig({
+adapter: vercel({
+    isr: {
       // 항상 최신 상태로 제공되는 경로입니다.
       exclude: [
-        '/preview', 
+        '/preview',
         '/auth/[page]',
         /^\/api\/.+/ // `@astrojs/vercel@v8.1.0`부터 정규 표현식이 지원됩니다.
       ]
@@ -389,22 +411,51 @@ export default defineConfig({
 });
 ```
 
+### `staticHeaders`
+
+<p>
+**타입:** `boolean`<br/>
+**기본값:** `false`<br />
+**사용 가능한 모드:** Serverless <br/>
+<Since pkg="@astrojs/vercel" v="10.0.0" />
+</p>
+
+Vercel 구성에서 사전 렌더링된 페이지에 대한 사용자 정의 헤더를 지정할 수 있습니다.
+
+이 기능이 활성화되면, 콘텐츠 보안 정책과 같은 Astro 기능에서 제공하는 경우 어댑터는 [Vercel의 `vercel.json` 파일에 정적 헤더](https://vercel.com/docs/project-configuration#headers)를 저장합니다.
+
+예를 들어, [콘텐츠 보안 정책](/ko/reference/configuration-reference/#securitycsp)이 활성화된 경우, `<meta>` 요소를 생성하는 대신 `staticHeaders`를 사용하여 Vercel 구성에 CSP `headers`를 추가할 수 있습니다.
+
+```js title="astro.config.mjs" {9}
+import { defineConfig } from 'astro/config';
+import vercel from '@astrojs/vercel';
+
+export default defineConfig({
+  security: {
+    csp: true
+  },
+  adapter: vercel({
+    staticHeaders: true 
+  })
+});
+```
+
 ### Vercel Edge Functions에서 Astro 미들웨어 실행
 
-`@astrojs/vercel` 어댑터는 코드 베이스의 Astro 미들웨어에서 [에지 함수](https://vercel.com/docs/functions/edge-functions)를 생성할 수 있습니다. `edgeMiddleware`가 활성화되면 에지 함수는 정적 자산, 사전 렌더링된 페이지, 주문형 렌더링된 페이지를 포함한 모든 요청에 ​​대해 미들웨어 코드를 실행합니다.
+`@astrojs/vercel` 어댑터는 코드 베이스의 Astro 미들웨어에서 [에지 함수](https://vercel.com/docs/functions/edge-functions)를 생성할 수 있습니다. [`middlewareMode`](/ko/reference/adapter-reference/#middlewaremode)가 `'edge'`로 설정되면 에지 함수는 정적 자산, 사전 렌더링된 페이지, 요청 시 렌더링되는 페이지를 포함한 모든 요청에 대해 미들웨어 코드를 실행합니다.
 
 주문형 렌더링된 페이지의 경우 `context.locals` 객체는 JSON을 사용하여 직렬화되고 렌더링을 수행하는 서버리스 함수의 헤더로 전송됩니다. 보안 조치로서 서버리스 함수는 생성된 에지 함수에서 발생하지 않는 한 `403 Forbidden` 응답이 포함된 요청 처리를 거부합니다.
 
-이는 선택적 기능입니다. 활성화하려면 `edgeMiddleware`를 `true`로 설정하세요.
+이는 선택적 기능입니다. 활성화하려면 `middlewareMode`를 `'edge'`로 설정하세요.
 
-```js title="astro.config.mjs" "edgeMiddleware: true"
+```js title="astro.config.mjs" "middlewareMode: 'edge'"
 import { defineConfig } from 'astro/config';
 import vercel from '@astrojs/vercel';
 
 export default defineConfig({
   // ...
   adapter: vercel({
-    edgeMiddleware: true,
+    middlewareMode: 'edge',
   }),
 });
 ```
@@ -480,39 +531,6 @@ Vercel에서 세션을 사용할 때는 세션 스토리지를 위한 [드라이
 
 `@astrojs/vercel` 어댑터는 Astro 프로젝트를 Vercel에 배포하기 위한 특정 Node.js 버전을 지원합니다. Vercel에서 지원하는 Node.js 버전을 보려면 프로젝트의 Settings 탭을 클릭하고 "Node.js Version" 섹션까지 아래로 스크롤하세요.
 
-[Vercel 문서](https://vercel.com/docs/functions/serverless-functions/runtimes/node-js#default-and-available-versions)를 참조하여 자세히 알아보십시오.
+[Vercel 문서](https://vercel.com/docs/functions/serverless-functions/runtimes/node-js#default-and-available-versions)를 참조하여 자세히 알아보세요.
 
-## 실험적 기능
-
-다음 기능들도 사용 가능하지만, 향후 업데이트에서 대규모 변경 (Breaking Changes)이 발생할 수 있습니다. 프로젝트에서 이 기능을 사용 중이라면 업데이트를 위해 [`@astrojs/vercel` 변경 로그](https://github.com/withastro/astro/tree/main/packages/integrations/vercel/CHANGELOG.md)를 주의 깊게 확인하세요.
-
-### `experimentalStaticHeaders`
-
-<p>
-**타입:** `boolean`<br/>
-**기본값:** `false`<br />
-**지원 모드:** Serverless <br/>
-<Since pkg="@astrojs/vercel" v="8.2.0" />
-</p>
-
-Vercel 구성에서 사전 렌더링된 페이지에 대한 사용자 정의 헤더를 지정할 수 있습니다.
-
-이 기능이 활성화되면, Astro 기능 (예: 콘텐츠 보안 정책)에서 제공하는 경우 어댑터는 [정적 헤더를 `vercel.json` 파일](https://vercel.com/docs/project-configuration#headers)에 저장합니다.
-
-예를 들어, [실험적인 콘텐츠 보안 정책](/ko/reference/experimental-flags/csp/)이 활성화된 경우, `<meta>` 요소를 생성하는 대신 `experimentalStaticHeaders`를 사용하여 CSP `headers`를 Vercel 구성에 추가할 수 있습니다.
-
-```js title="astro.config.mjs" {9}
-import { defineConfig } from 'astro/config';
-import vercel from '@astrojs/vercel';
-
-export default defineConfig({
-  experimental: {
-    csp: true
-  },
-  adapter: vercel({
-    experimentalStaticHeaders: true 
-  })
-});
-```
-
-[astro-integration]: /ko/guides/integrations-guide/
+[astro-integration]: /ko/guides/integrations/

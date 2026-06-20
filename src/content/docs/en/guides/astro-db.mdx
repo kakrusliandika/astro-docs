@@ -10,6 +10,12 @@ import ReadMore from '~/components/ReadMore.astro';
 import Since from '~/components/Since.astro';
 import { Steps } from '@astrojs/starlight/components';
 
+:::caution[Deprecated]
+The `@astrojs/db` integration has been deprecated in Astro v6.5 and is no longer maintained.
+
+If you were using this integration in your project, we recommend that you use a database client (e.g., Drizzle, Kysely) directly in your Astro project.
+:::
+
 Astro DB is a fully-managed SQL database designed for the Astro ecosystem. Develop locally in Astro and deploy to any libSQL-compatible database.
 
 Astro DB is a complete solution to configuring, developing, and querying your data. A local database is created in `.astro/content.db` whenever you run `astro dev` to manage your data without the need for Docker or a network connection.
@@ -401,7 +407,7 @@ You can also use [Astro actions](/en/guides/actions/) to insert data into an Ast
 // src/actions/index.ts
 import { db, Comment } from 'astro:db';
 import { defineAction } from 'astro:actions';
-import { z } from 'astro:schema';
+import { z } from 'astro/zod';
 
 export const server = {
   addComment: defineAction({
@@ -570,7 +576,7 @@ This command will verify that your local changes can be made without data loss a
 
 #### Pushing breaking schema changes
 
-:::caution
+:::danger
 __This will destroy your database__. Only perform this command if you do not need your production data.
 :::
 

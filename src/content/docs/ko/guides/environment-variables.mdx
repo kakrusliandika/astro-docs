@@ -58,7 +58,6 @@ Astro는 몇 가지 기본 환경 변수를 포함합니다.
 - `import.meta.env.DEV`: 사이트가 개발 환경에서 실행 중이면 `true`, 그렇지 않으면 `false`입니다. 항상 `import.meta.env.PROD`의 반대입니다.
 - `import.meta.env.BASE_URL`: 사이트가 제공되는 기본 URL입니다. [`base` 구성 옵션](/ko/reference/configuration-reference/#base)에 의해 결정됩니다.
 - `import.meta.env.SITE`: 프로젝트의 `astro.config`에 지정된 [`site` 옵션](/ko/reference/configuration-reference/#site)으로 설정됩니다.
-- `import.meta.env.ASSETS_PREFIX`: [`build.assetsPrefix` 구성 옵션](/ko/reference/configuration-reference/#buildassetsprefix)이 설정된 경우 Astro에서 생성된 자산 링크의 접두사입니다. Astro에서 처리하지 않는 자산 링크를 생성하는 데 사용할 수 있습니다.
 
 다른 환경 변수처럼 사용하세요.
 
@@ -279,7 +278,9 @@ const data = await fetch(`${API_URL}/users`, {
    import { API_SECRET } from "astro:env/server";
    ```
    
-   기본적으로 비밀 변수는 런타임에만 유효성이 검사됩니다. [`validateSecrets: true`를 구성](/ko/reference/configuration-reference/#envvalidatesecrets)하여 시작 시 비공개 변수의 유효성 검사를 활성화할 수 있습니다.
+   기본적으로, `astro:env/server` 모듈에서 무언가를 가져올 때마다 모든 비밀 변수가 검증됩니다. 이는 비밀 변수를 가져오지 않은 경우에도 검증될 수 있음을 의미합니다. 빌드 중에 이 검증을 통과하기 위해 [더미 환경 변수를 전달](#환경-변수-설정)해야 할 수도 있습니다.
+
+   [`validateSecrets: true`를 구성](/ko/reference/configuration-reference/#envvalidatesecrets)하여 시작 시 비밀 변수 유효성 검사를 활성화할 수도 있습니다.
 
 :::note
 **비밀 클라이언트 변수**는 지원되지 않습니다. 이 데이터를 클라이언트로 안전하게 전송할 방법이 없기 때문입니다. 따라서 스키마에서 `context: "client"`와 `access: "secret"`을 모두 구성하는 것은 불가능합니다.
@@ -318,7 +319,7 @@ envField.enum({
 })
 ```
 
-<ReadMore>유효성 검사 필드의 전체 목록은 [`envField` API 참조](/ko/reference/configuration-reference/#envschema)를 확인하세요.</ReadMore>
+<ReadMore>유효성 검사 필드의 전체 목록은 [`envField` API 참조](/ko/reference/modules/astro-config/#envfield)를 확인하세요.</ReadMore>
 
 ## 비밀 변수를 동적으로 검색
 

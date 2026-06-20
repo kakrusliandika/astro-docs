@@ -10,6 +10,12 @@ import ReadMore from '~/components/ReadMore.astro';
 import Since from '~/components/Since.astro';
 import { Steps } from '@astrojs/starlight/components';
 
+:::caution[Déprécié]
+L'intégration `@astrojs/db` a été dépréciée dans la v6.5 d'Astro et n'est plus maintenue.
+
+Si vous utilisiez cette intégration dans votre projet, nous vous recommandons d'utiliser un client de base de données (par exemple, Drizzle, Kysely) directement dans votre projet Astro.
+:::
+
 Astro DB est une base de données SQL entièrement gérée conçue pour l'écosystème Astro. Développez localement dans Astro et déployez vers n'importe quelle base de données compatible libSQL.
 
 Astro DB est une solution complète pour configurer, développer et interroger vos données. Une base de données locale est créée dans `.astro/content.db` chaque fois que vous exécutez `astro dev` pour gérer vos données sans avoir besoin de Docker ou d'une connexion réseau.
@@ -401,7 +407,7 @@ Vous pouvez également utiliser [Astro Actions](/fr/guides/actions/) pour insér
 // src/actions/index.ts
 import { db, Comment } from 'astro:db';
 import { defineAction } from 'astro:actions';
-import { z } from 'astro:schema';
+import { z } from 'astro/zod';
 
 export const server = {
   addComment: defineAction({
@@ -424,7 +430,7 @@ export const server = {
 
 <ReadMore>
 
-Consultez la [référence de l'API `insert()` de Drizzle] (https://orm.drizzle.team/docs/insert) pour une vue d'ensemble complète.
+Consultez la [référence de l'API `insert()` de Drizzle](https://orm.drizzle.team/docs/insert) pour une vue d'ensemble complète.
 
 </ReadMore>
 
@@ -570,7 +576,7 @@ Cette commande vérifiera que vos modifications locales peuvent être effectuée
 
 #### Pousser les changements majeurs de schéma
 
-:::caution
+:::danger
 __Cela détruira votre base de données__. N'exécutez cette commande que si vous n'avez pas besoin de vos données de production.
 :::
 

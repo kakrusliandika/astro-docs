@@ -328,7 +328,7 @@ Exécutez la commande `astro check` après la mise à niveau vers Astro v3.0 et 
 
 Dans Astro v2.x, `build.excludeMiddleware` et `build.split` étaient utilisés pour modifier la façon dont certains fichiers spécifiques étaient émis lors de l'utilisation d'un adaptateur en mode SSR.
 
-Astro v3.0 remplace ces options de configuration de compilation par de nouvelles [options de configuration de l'adaptateur SSR](/fr/guides/integrations-guide/#intégrations-officielles) pour effectuer les mêmes tâches : `edgeMiddleware` et `functionPerRoute`.
+Astro v3.0 remplace ces options de configuration de compilation par de nouvelles [options de configuration de l'adaptateur SSR](/fr/guides/integrations/#intégrations-officielles) pour effectuer les mêmes tâches : `edgeMiddleware` et `functionPerRoute`.
 
 #### Que devrais-je faire ?
 
@@ -565,7 +565,7 @@ Renommez toutes les fonctions avec leur équivalent en majuscule :
 
 ### Modifié : configuration de plusieurs frameworks JSX
 
-Dans Astro v2.x, vous pouvez utiliser [plusieurs intégrations de framework JSX](/fr/guides/integrations-guide/#intégrations-officielles) (React, Solid, Preact) dans le même projet sans avoir besoin d'identifier quels fichiers appartenaient à quel framework.
+Dans Astro v2.x, vous pouvez utiliser [plusieurs intégrations de framework JSX](/fr/guides/integrations/#intégrations-officielles) (React, Solid, Preact) dans le même projet sans avoir besoin d'identifier quels fichiers appartenaient à quel framework.
 
 Astro v3.0 vous oblige désormais à spécifier le framework à utiliser pour vos fichiers avec les nouvelles options de configuration d'intégration `include` et `exclude` lorsque plusieurs intégrations de framework JSX sont installées. Cela permet à Astro de mieux prendre en charge l'utilisation d'un seul framework, ainsi que des fonctionnalités avancées telles que React Fast Refresh.
 
@@ -791,7 +791,7 @@ Si vous utilisiez l'intégration d'images dans Astro v2.x, procédez comme suit�
 <Steps>
 1. Supprimez l'intégration `@astrojs/image`.
 
-    Vous devez [supprimer l'intégration](/fr/guides/integrations-guide/#supprimer-une-intégration) en la désinstallant puis en la supprimant de votre fichier `astro.config.mjs`.
+    Vous devez [supprimer l'intégration](/fr/guides/integrations/#supprimer-une-intégration) en la désinstallant puis en la supprimant de votre fichier `astro.config.mjs`.
 
     ```js del={3,7}
     // astro.config.mjs
@@ -829,7 +829,7 @@ Si vous utilisiez l'intégration d'images dans Astro v2.x, procédez comme suit�
 
     Modifiez toutes les instructions `import` de `@astrojs/image/components` en `astro:assets` afin d'utiliser le nouveau composant `<Image />` intégré.
 
-    Supprimez tous les attributs de composant qui ne sont pas des [propriétés d'éléments d'image actuellement prises en charge](/fr/reference/modules/astro-assets/#propriétés-dimage).
+    Supprimez tous les attributs de composant qui ne sont pas des [propriétés d'éléments d'image actuellement prises en charge](/fr/reference/modules/astro-assets/#image-).
 
     Par exemple, `aspectRatio` n'est plus pris en charge, car il est désormais automatiquement déduit des attributs `width` et `height`.
 

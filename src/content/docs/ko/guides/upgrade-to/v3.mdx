@@ -5,6 +5,7 @@ sidebar:
   label: v3.0
 i18nReady: true
 ---
+
 import { Steps } from '@astrojs/starlight/components';
 import PackageManagerTabs from '~/components/tabs/PackageManagerTabs.astro';
 
@@ -328,7 +329,7 @@ Astro v3.0으로 업그레이드한 후 `astro check` 명령을 실행하고 프
 
 Astro v2.x에서는 `build.excludeMiddleware` 및 `build.split`을 사용하여 SSR 모드에서 어댑터를 사용할 때 특정 파일이 내보내지는 방식을 변경했습니다.
 
-Astro v3.0은 이러한 빌드 구성 옵션을 새로운 [SSR 어댑터 구성 옵션](/ko/guides/integrations-guide/#공식-통합)으로 대체하여 동일한 작업인 `edgeMiddleware` 및 `functionPerRoute`를 수행합니다.
+Astro v3.0은 이러한 빌드 구성 옵션을 새로운 [SSR 어댑터 구성 옵션](/ko/guides/integrations/#공식-통합)으로 대체하여 동일한 작업인 `edgeMiddleware` 및 `functionPerRoute`를 수행합니다.
 
 #### 어떻게 해야 하나요?
 
@@ -565,7 +566,7 @@ Astro v3.0은 `del` 대신 `DELETE`를 포함한 대문자 함수 이름을 사�
 
 ### 변경됨: 다중 JSX 프레임워크 구성
 
-Astro v2.x에서는 어떤 파일이 어떤 프레임워크를 사용하는지 식별할 필요 없이 동일한 프로젝트에서 [여러 JSX 프레임워크 통합](/ko/guides/integrations-guide/#공식-통합) (React, Solid, Preact)을 사용할 수 있습니다.
+Astro v2.x에서는 어떤 파일이 어떤 프레임워크를 사용하는지 식별할 필요 없이 동일한 프로젝트에서 [여러 JSX 프레임워크 통합](/ko/guides/integrations/#공식-통합) (React, Solid, Preact)을 사용할 수 있습니다.
 
 Astro v3.0에서는 이제 여러 JSX 프레임워크 통합이 설치된 경우 새로운 `include` 및 `exclude` 통합 구성 옵션을 사용하여 파일에 사용할 프레임워크를 지정해야 합니다. 이를 통해 Astro는 단일 프레임워크 사용은 물론 React Fast Refresh와 같은 고급 기능을 더 잘 지원할 수 있습니다.
 
@@ -790,7 +791,7 @@ Astro v2.x에서 이미지 통합을 사용하는 경우 다음 단계를 완료
 <Steps>
 1. `@astrojs/image` 통합을 제거합니다.
 
-    통합을 제거한 다음 `astro.config.mjs` 파일에서도 [통합을 제거](/ko/guides/integrations-guide/#통합-제거)해야 합니다.
+    통합을 제거한 다음 `astro.config.mjs` 파일에서도 [통합을 제거](/ko/guides/integrations/#통합-제거)해야 합니다.
 
     ```js del={3,7}
     // astro.config.mjs
@@ -828,7 +829,7 @@ Astro v2.x에서 이미지 통합을 사용하는 경우 다음 단계를 완료
 
     새로운 내장 `<Image />` 컴포넌트를 사용하려면 모든 `import` 문을 `@astrojs/image/components`에서 `astro:assets`로 변경하세요.
 
-    [현재 지원되는 이미지 자산 속성](/ko/reference/modules/astro-assets/#image-속성)이 아닌 컴포넌트 속성을 제거하세요.
+    [현재 지원되는 이미지 자산 속성](/ko/reference/modules/astro-assets/#image-)이 아닌 컴포넌트 속성을 제거하세요.
 
     예를 들어, `aspectRatio`는 이제 `width` 및 `height` 속성에서 자동으로 추론되므로 더 이상 지원되지 않습니다.
 

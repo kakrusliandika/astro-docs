@@ -14,7 +14,7 @@ Astro Actions vous permet de définir et d'appeler des fonctions backend avec s�
 
 Utilisez des actions à la place de points de terminaison d'API pour une communication transparente entre votre code client et votre code serveur et pour :
 
-- Valider automatiquement les entrées de données JSON et de formulaire à l'aide de la [validation Zod](https://zod.dev/?id=primitives).
+- Valider automatiquement les entrées de données JSON et de formulaire à l'aide de la [validation Zod](/fr/reference/modules/astro-zod/).
 - Générer des fonctions avec sûreté du typage pour appeler votre backend à partir du client et même [à partir des actions de formulaire HTML](#appeler-des-actions-depuis-une-action-de-formulaire-html). Pas besoin d'appels manuels à `fetch()`.
 - Standardiser les erreurs du backend avec l'objet [`ActionError`](/fr/reference/modules/astro-actions/#actionerror).
 
@@ -24,7 +24,7 @@ Les actions sont définies dans un objet `server` exporté depuis `src/actions/i
 
 ```ts title="src/actions/index.ts"
 import { defineAction } from 'astro:actions';
-import { z } from 'astro:schema';
+import { z } from 'astro/zod';
 
 export const server = {
   myAction: defineAction({ /* ... */ })
@@ -62,22 +62,22 @@ Suivez ces étapes pour définir une action et pour l'appeler dans une balise `s
     }
     ```
 
-2. Importez l'utilitaire `defineAction()` depuis `astro:actions` et l'objet `z` depuis `astro:schema`.
+2. Importez l'utilitaire `defineAction()` depuis `astro:actions` et l'objet `z` depuis `astro/zod`.
 
     ```ts ins={1-2} title="src/actions/index.ts"
     import { defineAction } from 'astro:actions';
-    import { z } from 'astro:schema';
+    import { z } from 'astro/zod';
 
     export const server = {
       // déclarations d'action
     }
     ```
 
-3. Utilisez l'utilitaire `defineAction()` pour définir une action `getGreeting`. La propriété `input` sera utilisée pour valider les paramètres d'entrée avec un schéma [Zod](https://zod.dev) et la fonction `handler()` inclut la logique backend à exécuter sur le serveur.
+3. Utilisez l'utilitaire `defineAction()` pour définir une action `getGreeting`. La propriété `input` sera utilisée pour valider les paramètres d'entrée avec un [schéma Zod](/fr/reference/modules/astro-zod/#validateurs-de-types-de-données-courants) et la fonction `handler()` inclut la logique backend à exécuter sur le serveur.
 
     ```ts ins={5-12} title="src/actions/index.ts"
     import { defineAction } from 'astro:actions';
-    import { z } from 'astro:schema';
+    import { z } from 'astro/zod';
 
     export const server = {
       getGreeting: defineAction({
@@ -213,7 +213,7 @@ Cet exemple génère une erreur d'une action `likePost` lorsqu'un utilisateur n'
 
 ```ts title="src/actions/index.ts" ins=/ActionError(?= )/ ins={9-12}
 import { defineAction, ActionError } from "astro:actions";
-import { z } from "astro:schema";
+import { z } from "astro/zod";
 
 export const server = {
   likePost: defineAction({
@@ -290,7 +290,7 @@ Les actions acceptent les données JSON par défaut. Pour accepter les données 
 
 ```ts title="src/actions/index.ts" ins={6}
 import { defineAction } from 'astro:actions';
-import { z } from 'astro:schema';
+import { z } from 'astro/zod';
 
 export const server = {
   comment: defineAction({
@@ -319,7 +319,7 @@ Pour appliquer une union de différents validateurs, utilisez l'encapsuleur `z.d
 
 ```ts title="src/actions/index.ts" {7-21} "create" "update"
 import { defineAction } from 'astro:actions';
-import { z } from 'astro:schema';
+import { z } from 'astro/zod';
 
 export const server = {
   changeUser: defineAction({
@@ -329,14 +329,14 @@ export const server = {
         // Correspond lorsque le champ `type` a la valeur `create`
         type: z.literal('create'),
         name: z.string(),
-        email: z.string().email(),
+        email: z.email(),
       }),
       z.object({
         // Correspond lorsque le champ `type` a la valeur `update`
         type: z.literal('update'),
         id: z.number(),
         name: z.string(),
-        email: z.string().email(),
+        email: z.email(),
       }),
     ]),
     async handler(input) {
@@ -374,17 +374,17 @@ L'exemple suivant montre un formulaire d'inscription à une newsletter validé q
     </form>
     ```
 
-2. Définir une action `newsletter` pour gérer le formulaire soumis. Validez le champ `email` en utilisant le validateur `z.string().email()` et la case à cocher `terms` en utilisant `z.boolean()` :
+2. Définir une action `newsletter` pour gérer le formulaire soumis. Validez le champ `email` en utilisant le validateur `z.email()` et la case à cocher `terms` en utilisant `z.boolean()` :
 
     ```ts title="src/actions/index.ts" ins={5-12}
     import { defineAction } from 'astro:actions';
-    import { z } from 'astro:schema';
+    import { z } from 'astro/zod';
 
     export const server = {
       newsletter: defineAction({
         accept: 'form',
         input: z.object({
-          email: z.string().email(),
+          email: z.email(),
           terms: z.boolean(),
         }),
         handler: async ({ email, terms }) => { /* ... */ },
@@ -492,7 +492,7 @@ Par exemple, supposons que vous ayez une action `createProduct` qui renvoie l'id
 
 ```ts title="src/actions/index.ts" mark={10}
 import { defineAction } from 'astro:actions';
-import { z } from 'astro:schema';
+import { z } from 'astro/zod';
 
 export const server = {
   createProduct: defineAction({

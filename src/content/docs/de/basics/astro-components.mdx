@@ -50,7 +50,7 @@ import IrgendeineAstroKomponente from '../components/IrgendeineAstroKomponente.a
 import IrgendeineReactKomponente from '../components/IrgendeineReactKomponente.jsx';
 import irgendwelcheDaten from '../data/pokemon.json';
 
-// Zugriff auf übergebene Props (Komponenteneigenschaften), wie z.B. `<X title="Hallo, Welt!" />`
+// Zugriff auf übergebene Props (Komponenteneigenschaften), wie z. B. `<X title="Hallo, Welt!" />`
 const { title } = Astro.props;
 // Abrufen externer Daten, auch aus einer privaten API oder Datenbank
 const data = await fetch('EINE_GEHEIME_API_URL/users').then(r => r.json());
@@ -266,7 +266,7 @@ import Wrapper from '../components/Wrapper.astro';
 Verwende ein `slot="mein-slot"`-Attribut auf dem untergeordneten Element, das du an einen passenden `<slot name="mein-slot" />`-Platzhalter in deiner Komponente weiterleiten willst.
 :::
 
-Um mehrere HTML-Elemente ohne ein umschließendes `<div>` in den `<slot/>`-Platzhalter einer Komponente zu übergeben, verwende das `slot=""`-Attribut auf [Astros <Fragment/>-Komponente](/de/reference/astro-syntax/#fragmente):
+Um mehrere HTML-Elemente ohne ein umschließendes `<div>` in den `<slot/>`-Platzhalter einer Komponente zu übergeben, verwende das `slot=""`-Attribut auf [Astros <Fragment/>-Komponente](/de/reference/astro-syntax/#fragments):
 
 
 ```astro title="src/components/CustomTable.astro" '<slot name="header" />' '<slot name="body" />'

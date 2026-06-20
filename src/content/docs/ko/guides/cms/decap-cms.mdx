@@ -5,12 +5,10 @@ sidebar:
   label: Decap CMS
 type: cms
 stub: true
-service: Decap CMS
+logo: decap-cms
 i18nReady: false
 ---
 
-import Grid from '~/components/FluidGrid.astro';
-import Card from '~/components/ShowcaseCard.astro';
 import { Steps } from '@astrojs/starlight/components';
 import { FileTree } from '@astrojs/starlight/components';
 import PackageManagerTabs from '~/components/tabs/PackageManagerTabs.astro';
@@ -103,7 +101,7 @@ Astro에 Decap을 추가하는 데는 두 가지 옵션이 있습니다.
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="robots" content="noindex" />
-        <link href="/admin/config.yml" type="text/yaml" rel="cms-config-url" />
+        <link href="config.yml" type="text/yaml" rel="cms-config-url" />
         <title>Content Manager</title>
       </head>
       <body>
@@ -150,18 +148,3 @@ Astro에서는 [어댑터](/ko/guides/on-demand-rendering/)가 활성화된 상�
 - 블로그 게시물: Aftab Alam이 게시한 [Git 기반 CMS를 사용하여 Astro 사이트 콘텐츠 작성](https://aalam.vercel.app/blog/astro-and-git-cms-netlify)
 
 - YouTube 튜토리얼: Kumail Pirzada이 게시한 [Astro 및 NetlifyCMS를 사용하여 몇 분 만에 맞춤형 블로그 만들기!](https://www.youtube.com/watch?v=3yip2wSRX_4) 
-
-## 프로덕션 사이트
-
-다음 사이트에서는 프로덕션에 Astro + Decap CMS를 사용합니다.
-
-- Yuniel Acosta의 [yunielacosta.com](https://www.yunielacosta.com/) — [GitHub의 소스 코드](https://github.com/yacosta738/yacosta738.github.io) (Netlify CMS)
-- Joris Hulsbosch의 [portfolioris.nl](https://www.portfolioris.nl/) – [GitHub의 소스 코드](https://github.com/portfolioris/portfolioris.nl)
-
-## 테마
-
-<Grid>
-  <Card title="Astros" href="https://astro.build/themes/details/astros" thumbnail="astros.png"/>
-  <Card title="Enhanced Astro Starter" href="https://astro.build/themes/details/enhanced-astro-starter" thumbnail="enhanced-astro-starter.png"/>
-  <Card title="Astro Decap CMS Starter" href="https://astro.build/themes/details/astro-decap-cms-starter" thumbnail="astro-decap-starter.png"/>
-</Grid>

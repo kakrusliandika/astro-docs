@@ -2,8 +2,10 @@
 title: Deploy your Astro Site with Deno
 description: How to deploy your Astro site to the web using Deno.
 sidebar:
-  label: Deno
+  label: Deno Deploy
 type: deploy
+logo: deno
+supports: ['ssr', 'static']
 i18nReady: true
 ---
 import { Steps } from '@astrojs/starlight/components';
@@ -199,7 +201,7 @@ If your project is stored on GitHub, the [Deno Deploy website](https://dash.deno
 
             steps:
               - name: Clone repository
-                uses: actions/checkout@v4
+                uses: actions/checkout@v6
 
               # Not using npm? Change `npm ci` to `yarn install` or `pnpm i`
               - name: Install dependencies
@@ -236,7 +238,7 @@ If your project is stored on GitHub, the [Deno Deploy website](https://dash.deno
 
             steps:
               - name: Clone repository
-                uses: actions/checkout@v4
+                uses: actions/checkout@v6
 
               # Not using npm? Change `npm ci` to `yarn install` or `pnpm i`
               - name: Install dependencies

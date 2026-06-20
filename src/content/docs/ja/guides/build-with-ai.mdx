@@ -15,12 +15,6 @@ AI対応エディターやエージェント型コーディングツールは、
 
 このガイドでは、AIツールに最新のAstro知識を提供する方法と、AIの支援でAstroサイトを構築する際のベストプラクティスを解説します。
 
-## コンテキストファイル
-
-Astroは[`llms.txt`](https://docs.astro.build/llms.txt)と[`llms-full.txt`](https://docs.astro.build/llms-full.txt)を提供しています。これは、AIでの利用に最適化した形式でドキュメント全文を収録した静的ファイルで、簡素化されたMarkdownとして提供されます。`https://docs.astro.build`をドキュメントソースとして指定すると、これらのファイルを自動検出できるAIツールもあります。
-
-これらのファイルは最小限かつ解析しやすい一方で、コンテキストに直接読み込むとトークン消費が大きく、最新状態の維持には定期的な更新が必要です。他の手段で最新ドキュメントにアクセスできないときのフォールバックとして適しています。[MCPサーバー](#astro-docs-mcpサーバー)はリアルタイム検索で全文に効率よくアクセスできるため、利用可能な場合はそちらを優先してください。
-
 ## Astro Docs MCPサーバー
 
 Astro Docs MCP（Model Context Protocol）サーバーを使うと、AIツールが常に最新のAstroドキュメントへリアルタイムにアクセスできます。これにより古い推奨事項を避け、現行のベストプラクティスに沿った理解を促せます。
@@ -49,7 +43,7 @@ Astro Docs MCPサーバーは[kapa.ai](https://www.kapa.ai/)のAPIを使って�
 
 <Tabs>
   <TabItem label="Streamable HTTP">
-    ```json title="mcp.json" {3-6}
+    ```json title="MCPの設定" {3-6}
     {
       "mcpServers": {
         "Astro docs": {
@@ -61,7 +55,7 @@ Astro Docs MCPサーバーは[kapa.ai](https://www.kapa.ai/)のAPIを使って�
     ```
   </TabItem>
   <TabItem label="ローカルプロキシ">
-    ```json title="mcp.json" {3-7}
+    ```json title="MCPの設定" {3-7}
     {
       "mcpServers": {
         "Astro docs": {
@@ -111,6 +105,20 @@ Claude CodeはGitHub Actionも提供しており、GitHubイベントに応じ�
 ```
 
 [Claude Code GitHub ActionでのMCP利用について詳しく見る](https://github.com/anthropics/claude-code-action?tab=readme-ov-file#using-custom-mcp-configuration)
+
+#### Codex CLI
+
+Codex CLIはコマンドラインのAIコーディングツールで、Astro Docs MCPサーバーを使ってドキュメントを参照しながらAstroコードを生成できます。
+
+MCPサーバーは、グローバルレベルでは`~/.codex/config.toml`ファイルで、またはプロジェクトルート内での`.codex/config.toml`ファイルで設定できます。
+
+```toml title="~/.codex/config.toml"
+[mcp_servers.astro-docs]
+command = "npx"
+args = ["-y", "mcp-remote", "https://mcp.docs.astro.build/mcp"]
+```
+
+[Codex CLIでのMCP利用について詳しく見る](https://developers.openai.com/codex/mcp)
 
 #### Cursor
 
@@ -222,25 +230,45 @@ MCPサーバーはグローバル設定`~/.gemini/settings.json`またはプロ�
 
 [Gemini CLIでのMCP利用について詳しく見る](https://github.com/google-gemini/gemini-cli/blob/main/docs/tools/mcp-server.md)
 
+#### Google Antigravity
+
+[Google Antigravity](https://antigravity.google/) はエージェント型開発プラットフォームです。
+
+<Steps>
+
+1. [Connecting Custom MCP Servers guide](https://antigravity.google/docs/mcp#connecting-custom-mcp-servers)に従い、`~/.gemini/antigravity/mcp_config.json`を開きます。
+2. `mcp_config.json`に以下の設定を追加します:
+   ```json title="mcp_config.json" {3-5}
+   {
+     "mcpServers": {
+       "astro-docs": {
+         "serverUrl": "https://mcp.docs.astro.build/mcp"
+       }
+     }
+   }
+   ``` 
+3. ファイルを保存し、"Manage MCPs"タブで"Refresh"をクリックします。
+
+</Steps>
+
 #### Zed
 
 [Zed](https://zed.dev)はAI機能使用時にMCPサーバーをサポートします。Astro Docs MCPサーバーを使って、タスク実行時にドキュメントへアクセスできます。
-
-ZedはStreaming HTTPをサポートしていないため、ローカルプロキシ設定が必要です。
 
 <Steps>
 
 1. `~/.config/zed/settings.json`を開く。
 2. 次の設定をZedのMCP設定に追加します。
     
-   ```json title="MCPの設定" {3-6}
+   ```json title="MCPの設定" {3-7}
    {
-     "context_servers": {
-       "Astro docs": {
-         "command": "npx",
-         "args": ["-y", "mcp-remote", "https://mcp.docs.astro.build/mcp"]
-       }
-     }
+      "context_servers": {
+        "Astro docs": {
+          "settings": {},
+          "enabled": true,
+          "url": "https://mcp.docs.astro.build/mcp"
+        }
+      }
    }
    ```
 3. 設定を保存。
@@ -251,21 +279,58 @@ ZedはStreaming HTTPをサポートしていないため、ローカルプロキ
 
 #### ChatGPT
 
-:::caution[提供範囲に制限]
-MCPサーバー連携はChatGPTのPro、Team、Enterpriseでのみ利用できます。設定は他のツールより複雑です。
-:::
-
 具体的な手順は[OpenAIのMCPドキュメント](https://platform.openai.com/docs/mcp#test-and-connect-your-mcp-server)を参照してください。
 
 #### Raycast
 
-[Raycast](https://www.raycast.com/)はMCPサーバーに接続してAI機能を強化できます。MCPなどのAI機能には[Raycast Pro](https://www.raycast.com/pro)が必要です。Astro Docs MCPサーバーを追加すると、質問応答時に最新ドキュメントへアクセスできます。
+[Raycast](https://www.raycast.com/)はMCPサーバーに接続してAI機能を強化できます。Astro Docs MCPサーバーを追加すると、質問応答時に最新ドキュメントへアクセスできます。
 
 以下のボタンからインストールします。
 
 <LinkButton href="raycast://mcp/install?%7B%22name%22%3A%22Astro%20docs%22%2C%22type%22%3A%22stdio%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%20%22mcp-remote%22%2C%20%22https%3A%2F%2Fmcp.docs.astro.build%2Fmcp%22%5D%7D">Raycastに追加</LinkButton>
 
 [RaycastでのMCP利用について詳しく見る](https://manual.raycast.com/model-context-protocol)
+
+#### Opencode AI
+
+[Opencode AI](https://opencode.ai/)は、オープンソースのターミナルベースAIコーディングツールです。Astro Docs MCPサーバーを利用してドキュメントを参照しながらAstroコードを生成できます。
+
+MCPサーバーは、プロジェクトルートまたはグローバル設定ディレクトリ（例: `~/.config/opencode/opencode.json`）にある、通常`opencode.json`という名前のOpencode設定ファイルで設定できます。
+
+```json title="MCPの設定"
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "Astro docs": {
+      "type": "remote",
+      "url": "https://mcp.docs.astro.build/mcp",
+      "enabled": true
+    }
+  }
+}
+
+```
+
+[Opencode AIでの利用について詳しく見る](https://opencode.ai/)
+
+#### GitHub Copilot Coding Agent
+
+[GitHub Copilot](https://docs.github.com/en/copilot/concepts/agents/coding-agent/about-coding-agent)は、GitHub Actionsを基盤とするコーディングエージェントとして利用できます。Astro Docs MCPサーバーを有効にすることで、回答の生成やコーディングタスクの実行時に最新のAstroドキュメントを参照できるようになります。
+
+Astro Docs MCPサーバーでドキュメントを参照できるようにするには、リポジトリのCopilot Coding Agent設定（`https://github.com/<your-org>/<your-repo>/settings/copilot/coding_agent`）に以下を追加します:
+```json title="MCPの設定"
+{
+  "mcpServers": {
+    "astro-docs": {
+      "type": "http",
+      "url": "https://mcp.docs.astro.build/mcp",
+      "tools": ["mcp__astro-docs__search_astro_docs"]
+    }
+  }
+}
+```
+
+詳しい情報は[MCPサーバーでGitHub Copilot Coding Agentを拡張する](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/extend-coding-agent-with-mcp)を参照してください。
 
 ### 使い方
 

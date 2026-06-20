@@ -119,7 +119,9 @@ import { Steps } from '@astrojs/starlight/components';
     // 导入 glob 加载器（loader）
     import { glob } from "astro/loaders";
     // 从 `astro:content` 导入工具函数
-    import { z, defineCollection } from "astro:content";
+    import { defineCollection } from "astro:content";
+    // 导入 Zod
+    import { z } from "astro/zod";
     // 为每个集合定义一个 `loader` 和 `schema`
     const blog = defineCollection({
         loader: glob({ pattern: '**/[^_]*.md', base: "./src/blog" }),
@@ -147,7 +149,7 @@ import { Steps } from '@astrojs/starlight/components';
 <Steps>
 1. 创建一个页面文件并命名为 `src/pages/posts/[...slug].astro`。当你的 Markdown 和 MDX 文件在集合中时，将不再使用 Astro 的基于文件的路由自动生成为页面，因此你必须创建一个页面，用于负责生成每个单独的博客文章。
 
-2. 添加以下代码以 [查询你的集合](/zh-cn/guides/content-collections/#查询集合)，从而使每个博客文章的 slug 和页面内容都可以生成：
+2. 添加以下代码以 [查询你的集合](/zh-cn/guides/content-collections/#查询构建时集合)，从而使每个博客文章的 slug 和页面内容都可以生成：
 
     ```astro title="src/pages/posts/[...slug].astro"
     ---
@@ -202,7 +204,7 @@ import { Steps } from '@astrojs/starlight/components';
 ## 用 `getCollection()` 代替 `import.meta.glob()`
 
 <Steps>
-5. 任何有博客文章列表的地方，例如教程中的 Blog 页面（`src/pages/blog.astro/`），你都需要用 [`getCollection()`](/zh-cn/reference/modules/astro-content/#getcollection) 来代替 `import.meta.glob()` 以此作为从 Markdown 文件中获取内容和元数据的方式。
+5. 任何有博客文章列表的地方，例如教程中的 Blog 页面（`src/pages/blog.astro`），你都需要用 [`getCollection()`](/zh-cn/reference/modules/astro-content/#getcollection) 来代替 `import.meta.glob()` 以此作为从 Markdown 文件中获取内容和元数据的方式。
 
     ```astro title="src/pages/blog.astro" "post.data" "getCollection(\"blog\")" "/posts/${post.id}/" del={7} ins={2,8}
     ---

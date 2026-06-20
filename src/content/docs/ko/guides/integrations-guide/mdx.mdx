@@ -96,13 +96,14 @@ MDX 통합을 추가하면 JSX 변수, 표현식, 컴포넌트로 Markdown을 �
 
 `.mdx` 파일은 Astro의 HTML과 유사한 구문이 아닌 [MDX 구문](https://mdxjs.com/docs/what-is-mdx/#mdx-syntax)으로 작성해야 합니다.
 
-### MDX와 콘텐츠 컬렉션 함께 사용하기
+### 로컬 MDX와 콘텐츠 컬렉션 함께 사용하기
 
-콘텐츠 컬렉션에 MDX 파일을 포함하려면, [컬렉션 로더](/ko/guides/content-collections/#컬렉션-loader-정의)가 `.mdx` 파일의 콘텐츠를 로드하도록 구성되어 있는지 확인하세요:
+콘텐츠 컬렉션에 로컬 MDX 파일을 포함하려면, [컬렉션 로더](/ko/guides/content-collections/)가 `.mdx` 파일의 콘텐츠를 로드하도록 구성되어 있는지 확인하세요:
 
 ```js title="src/content.config.ts" ins="mdx"
-import { defineCollection, z } from 'astro:content';
+import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
+import { z } from 'astro/zod';
 
 const blog = defineCollection({
   loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/blog" }),
@@ -146,7 +147,7 @@ const posts = Object.values(matches);
 - **`file`** - 파일의 절대 경로 (예: `/home/user/projects/.../file.mdx`).
 - **`url`** - 페이지의 URL (예: `/en/guides/markdown-content`).
 - **`frontmatter`** - 파일의 YAML/TOML 프런트매터에 지정된 모든 데이터를 포함합니다.
-- **`getHeadings()`** - 파일에 있는 모든 제목 (`<h1>`에서 `<h6>`)의 배열 (타입은 `{ depth: number; slug: string; text: string }[]`)을 반환하는 비동기 함수입니다. 각 제목의 `slug`는 주어진 제목에 대해 생성된 ID에 해당하며 링크로 사용될 수 있습니다.
+- **`getHeadings()`** - 파일에 있는 모든 제목(`<h1>`에서 `<h6>`)의 배열(타입은 `{ depth: number; slug: string; text: string }[]`)을 반환하는 비동기 함수입니다. 각 제목의 `slug`는 주어진 제목에 대해 생성된 ID에 해당하며 링크로 사용될 수 있습니다. 가져온 파일의 제목은 포함되지 않습니다.
 - **`<Content />`** - 파일의 렌더링된 전체 콘텐츠를 반환하는 컴포넌트입니다.
 - **(모든 `export` 값)** - MDX 파일은 `export` 문을 사용하여 데이터를 내보낼 수도 있습니다.
 
@@ -254,16 +255,18 @@ MDX 통합이 설치되면 Astro 프로젝트에서 `.mdx` 파일을 사용하�
 다음 옵션을 사용하여 MDX가 렌더링되는 방식을 구성할 수 있습니다.
 
 * [Markdown 구성에서 상속된 옵션](#markdown-구성에서-상속된-옵션)
+* [`processor`](#processor)
 * [`extendMarkdownConfig`](#extendmarkdownconfig)
 * [`recmaPlugins`](#recmaplugins)
 * [`optimize`](#optimize)
 
 ### Markdown 구성에서 상속된 옵션
 
-모든 [`markdown` 구성 옵션](/ko/reference/configuration-reference/#markdown-옵션)은 MDX 통합에서 별도로 구성할 수 있습니다. 여기에는 remark 및 rehype 플러그인, 구문 강조 등이 포함됩니다. 옵션은 기본적으로 Markdown 구성의 옵션으로 설정됩니다 ([이를 수정하려면 `extendMarkdownConfig` 옵션 참조](#extendmarkdownconfig)).
+[Markdown 프로세서](#processor), 구문 강조 등을 포함한 모든 [`markdown` 구성 옵션](/ko/reference/configuration-reference/#markdown-옵션)은 MDX 통합에서 별도로 구성할 수 있습니다. 각 옵션은 기본적으로 프로젝트의 Markdown 구성 값을 사용합니다. 이를 변경하려면 [`extendMarkdownConfig` 옵션](#extendmarkdownconfig)을 참조하세요.
 
 ```js title="astro.config.mjs"
 import { defineConfig } from 'astro/config';
+import { unified } from '@astrojs/markdown-remark';
 import mdx from '@astrojs/mdx';
 import remarkToc from 'remark-toc';
 import rehypePresetMinify from 'rehype-preset-minify';
@@ -274,20 +277,43 @@ export default defineConfig({
     mdx({
       syntaxHighlight: 'shiki',
       shikiConfig: { theme: 'dracula' },
-      remarkPlugins: [remarkToc],
-      rehypePlugins: [rehypePresetMinify],
-      remarkRehype: { footnoteLabel: 'Footnotes' },
-      gfm: false,
+      processor: unified({
+        remarkPlugins: [remarkToc],
+        rehypePlugins: [rehypePresetMinify],
+        remarkRehype: { footnoteLabel: 'Footnotes' },
+        gfm: false
+      }),
     }),
   ],
 });
 ```
 
-:::caution
-MDX는 remark 및 rehype 플러그인을 문자열로 전달하는 것을 지원하지 않습니다. 대신 플러그인 기능을 설치하고 가져와 적용해야 합니다.
-:::
-
 <ReadMore>전체 옵션 목록은 [Markdown 옵션 참조](/ko/reference/configuration-reference/#markdown-옵션)를 확인하세요.</ReadMore>
+
+### `processor`
+
+<p>
+
+**타입:** `MarkdownProcessor`<br />
+**기본값:** [`markdown.processor`](/ko/reference/configuration-reference/#markdownprocessor)에서 상속됨<br />
+<Since v="6.0.0" pkg="@astrojs/mdx" />
+</p>
+
+기본적으로 `.mdx` 파일은 `.md` 파일과 동일한 [Markdown 프로세서](/ko/guides/markdown-content/#markdown-프로세서-선택하기)를 통해 렌더링됩니다. `.mdx` 파일에만 다른 프로세서 또는 다른 옵션이 적용된 동일한 프로세서를 사용하려면 `processor`를 설정하세요.
+
+예를 들어, `.md` 파일에는 기본 remark/rehype 프로세서를 유지하면서 `.mdx` 파일은 `@astrojs/markdown-satteri`를 사용하는 [Sätteri](https://satteri.bruits.org/)로 렌더링하려면 다음과 같이 설정합니다.
+
+```js title="astro.config.mjs"
+import { defineConfig } from 'astro/config';
+import { satteri } from '@astrojs/markdown-satteri';
+import mdx from '@astrojs/mdx';
+
+export default defineConfig({
+  integrations: [
+    mdx({ processor: satteri() }),
+  ],
+});
+```
 
 ### `extendMarkdownConfig`
 
@@ -300,28 +326,27 @@ MDX는 remark 및 rehype 플러그인을 문자열로 전달하는 것을 지원
 
 MDX는 기본적으로 [프로젝트의 기존 Markdown 구성](/ko/reference/configuration-reference/#markdown-옵션)을 확장합니다. 개별 옵션을 재정의하려면 MDX 구성에서 해당 옵션을 지정하면 됩니다.
 
-예를 들어 GitHub 기반 Markdown을 비활성화하고 MDX 파일에 대해 다른 remark 플러그인 세트를 적용해야 한다고 가정해 보겠습니다. 기본적으로 `extendMarkdownConfig`가 활성화된 상태에서 이러한 옵션을 다음과 같이 적용할 수 있습니다.
+예를 들어, `.mdx` 파일에 다른 구문 강조 도구와 다른 플러그인 세트가 필요하다고 가정해 보겠습니다. `extendMarkdownConfig`가 기본적으로 활성화되어 있으므로, 다음과 같은 옵션을 적용할 수 있습니다.
 
 ```js title="astro.config.mjs"
 import { defineConfig } from 'astro/config';
+import { unified } from '@astrojs/markdown-remark';
 import mdx from '@astrojs/mdx';
 
 export default defineConfig({
   // ...
   markdown: {
     syntaxHighlight: 'prism',
-    remarkPlugins: [remarkPlugin1],
-    gfm: true,
+    processor: unified({ remarkPlugins: [remarkPlugin1] }),
   },
   integrations: [
     mdx({
-      // Markdown에서 상속된 `syntaxHighlight`
+      // Markdown의 `syntaxHighlight`가 재정의되어,
+      // `.mdx` 파일은 대신 Shiki를 사용합니다.
+      syntaxHighlight: 'shiki',
 
-      // 마크다운 `remarkPlugins`가 무시되었습니다.
-      // `remarkPlugin2`만 적용되었습니다.
-      remarkPlugins: [remarkPlugin2],
-      // `gfm`이 `false`로 재정의되었습니다.
-      gfm: false,
+      // 이 옵션으로 인해 `.mdx` 파일에 대한 `markdown.processor` 설정이 재정의됩니다.
+      processor: unified({ remarkPlugins: [remarkPlugin2] }),
     }),
   ],
 });
@@ -331,18 +356,19 @@ MDX에서 `markdown` 구성 확장을 비활성화해야 할 수도 있습니다
 
 ```js title="astro.config.mjs"
 import { defineConfig } from 'astro/config';
+import { unified } from '@astrojs/markdown-remark';
 import mdx from '@astrojs/mdx';
 
 export default defineConfig({
   // ...
   markdown: {
-    remarkPlugins: [remarkPlugin1],
+    processor: unified({ remarkPlugins: [remarkPlugin] }),
   },
   integrations: [
     mdx({
-      // markdown 구성은 이제 무시됩니다.
+      // 이제 Markdown 구성이 무시됩니다.
       extendMarkdownConfig: false,
-      // 'remarkPlugins'가 적용되지 않았습니다.
+      // 기본 `unified()` 프로세서가 사용됩니다.
     }),
   ],
 });
@@ -438,6 +464,6 @@ MDX 파일이 [`export const components = { ... }`를 사용하여 사용자 정
 
 [Astro MDX 시작 템플릿](https://github.com/withastro/astro/tree/latest/examples/with-mdx)은 Astro 프로젝트에서 MDX 파일을 사용하는 방법을 보여줍니다.
 
-[astro-integration]: /ko/guides/integrations-guide/
+[astro-integration]: /ko/guides/integrations/
 
 [astro-ui-frameworks]: /ko/guides/framework-components/#using-framework-components

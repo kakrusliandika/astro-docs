@@ -214,7 +214,7 @@ import netlify from '@astrojs/netlify';
 
 맞춤형 통합으로 Astro를 확장하세요. 통합은 프레임워크 지원 (Solid.js 등), 새로운 기능 (사이트맵 등), 새 라이브러리(Partytown 등)를 한번에 추가하는 것을 도와줍니다.
 
-Astro 통합을 시작하는 데 도움이 필요하면 [통합 가이드](/ko/guides/integrations-guide/)를 읽어보세요.
+Astro 통합을 시작하는 데 도움이 필요하면 [통합 가이드](/ko/guides/integrations/)를 읽어보세요.
 
 ```js
 import react from '@astrojs/react';
@@ -335,21 +335,24 @@ Astro가 여러분의 사이트를 읽을 디렉터리를 설정하세요.
 
 <p>
 
-**타입:** `boolean`<br />
+**타입:** `boolean | "jsx"`<br />
 **기본값:** `true`
 
 </p>
 
-이는 HTML 출력을 최소화하고 HTML 파일의 크기를 줄이는 옵션입니다.
+Astro가 HTML의 공백을 처리하는 방식을 제어합니다. 이는 개발 모드와 최종 빌드 출력 모두에 영향을 미칩니다.
 
-기본적으로 Astro는 `.astro` 컴포넌트에서 줄 바꿈을 포함하여 HTML의 공백을 무손실 방식으로 제거합니다.
-HTML의 시각적 렌더링을 유지하기 위해 필요에 따라 일부 공백이 유지될 수 있습니다. 이는 개발 모드와 최종 빌드 모두에서 발생합니다.
+기본적으로 Astro는 `.astro` 컴포넌트에서 줄바꿈을 포함한 HTML의 공백을 무손실 방식으로 제거합니다. HTML의 시각적 렌더링을 유지하기 위해 필요한 경우 일부 공백은 보존될 수 있습니다.
 
-HTML 압축을 비활성화하려면 `compressHTML`을 false로 설정하세요.
+6.2.0 버전부터 이 옵션을 `"jsx"`로 설정할 수도 있습니다. 이 경우 Astro는 React와 같은 프레임워크에서 사용하는 JSX 공백 제거 규칙을 적용합니다. 앞뒤 공백은 `{" "}`와 같은 구문을 통해 소스 코드에 명시적으로 포함된 경우에만 유지되며, 그렇지 않은 경우에는 완전히 제거됩니다.
+
+이 옵션을 false로 설정하면 HTML 압축이 비활성화되고 모든 공백이 보존됩니다.
 
 ```js
 {
-  compressHTML: false;
+  compressHTML: false
+  // 또는:
+  // compressHTML: 'jsx'
 }
 ```
 
@@ -372,6 +375,60 @@ Astro 컴포넌트에서 스타일 범위 지정에 사용되는 전략을 지�
 Astro 컴포넌트의 요소 선택기가 전역 스타일 기본값 (예: 전역 스타일시트)을 재정의하도록 하려는 경우 `'class'`를 사용하는 것이 도움이 됩니다.
 ``where'`를 사용하면 구체성을 더 잘 제어할 수 있지만, 적용되는 선택기를 제어하려면 더 높은 구체성 선택기, 레이어 및 기타 도구를 사용해야 합니다.
 `'attribute'`를 사용하는 것은 요소의 `class` 속성을 조작하고 자신의 스타일 지정 로직과 Astro의 스타일 적용 사이의 충돌을 피해야 할 때 유용합니다.
+
+### prerenderConflictBehavior
+
+<p>
+
+**타입:** `'error' | 'warn' | 'ignore'`<br />
+**기본값:** `'warn'`<br />
+<Since v="6.0" />
+</p>
+
+두 개의 라우트가 동일한 사전 렌더링된 URL을 생성할 때의 기본 동작을 결정합니다.
+
+- `error`: 빌드를 실패시키고 오류를 표시하여 충돌을 해결하도록 합니다.
+- `warn` (기본값): 충돌이 발생하면 경고를 기록하지만, 우선순위가 가장 높은 라우트를 사용하여 빌드를 진행합니다.
+- `ignore`: 충돌이 발생해도 아무 메시지 없이 우선순위가 가장 높은 라우트를 사용하여 빌드를 진행합니다.
+
+```js
+{
+  prerenderConflictBehavior: 'error'
+}
+```
+
+### vite
+
+<p>
+
+**타입:** `ViteUserConfig`
+</p>
+
+Vite에 추가 설정 옵션을 전달합니다. Astro가 필요한 일부 고급 설정을 지원하지 않을 때 유용합니다.
+
+전체 `vite` 설정 객체 문서는 [vite.dev](https://ko.vite.dev/config/)에서 확인할 수 있습니다.
+
+#### 예시
+
+```js
+{
+  vite: {
+    ssr: {
+      // 예: 필요한 경우, 손상된 패키지가 SSR 처리를 건너뛰도록 강제합니다.
+      external: ['broken-npm-package'],
+    }
+  }
+}
+```
+
+```js
+{
+  vite: {
+    // 예: Astro 프로젝트에 직접 맞춤형 vite 플러그인 추가
+    plugins: [myPlugin()],
+  }
+}
+```
 
 ### security
 
@@ -428,6 +485,9 @@ SSR 사용 시 들어오는 요청에 대해 허용되는 호스트 패턴 목�
 
 각 패턴은 `protocol`, `hostname`, `port`를 지정할 수 있습니다. 제공된 옵션에 대해 유효성 검사를 수행합니다. 패턴은 유연한 호스트명 일치를 위해 와일드카드를 지원합니다.
 
+- `*.example.com` - 정확히 한 단계의 서브도메인과 일치합니다 (예: `sub.example.com`은 일치하지만 `deep.sub.example.com`은 일치하지 않음)
+- `**.example.com` - 모든 깊이의 서브도메인과 일치합니다 (예: `sub.example.com`과 `deep.sub.example.com` 모두 일치)
+
 ```js
 {
   security: {
@@ -447,40 +507,359 @@ SSR 사용 시 들어오는 요청에 대해 허용되는 호스트 패턴 목�
 }
 ```
 
-이 설정이 구성되지 않으면, `X-Forwarded-Host` 헤더는 신뢰되지 않으며 무시됩니다.
-
-### vite
-
-<p>
-
-**타입:** `ViteUserConfig`
-
-</p>
-
-추가 구성 옵션을 Vite에 전달합니다. Astro가 필요할 수 있는 일부 고급 구성을 지원하지 않을 때 유용합니다.
-
-[vite.dev](https://ko.vite.dev/config/)에서 전체 `vite` 구성 객체 문서를 확인하세요.
-
-#### 예
+일부 특정 상황(예: 동적 도메인을 사용하는 신뢰할 수 있는 리버스 프록시 뒤에 있는 애플리케이션)에서는 모든 도메인을 허용해야 할 수 있습니다. 이 경우 빈 객체를 사용하세요.
 
 ```js
 {
-  vite: {
-    ssr: {
-      // 예: 필요한 경우, 손상된 패키지가 SSR 처리를 건너뛰도록 강제합니다.
-      external: ['broken-npm-package'],
-    }
+  security: {
+    // 모든 도메인 허용 - 필요한 경우에만 사용하세요.
+    allowedDomains: [{}]
   }
 }
 ```
 
+이 설정이 구성되지 않으면, `X-Forwarded-Host` 헤더는 신뢰되지 않으며 무시됩니다.
+
+#### security.serverIslandBodySizeLimit
+
+<p>
+
+**타입:** `number`<br />
+**기본값:** `1048576` (1 MB)<br />
+<Since v="6.0.0" />
+</p>
+
+아일랜드 컴포넌트로 전달되는 암호화된 props와 슬롯 HTML이 포함된 서버 아일랜드 요청 본문의 허용 최대 크기(바이트)를 설정합니다.
+
+기본적으로 서버 아일랜드 요청 본문은 남용을 방지하기 위해 1MB(1048576바이트)로 제한됩니다.
+서버 아일랜드가 더 큰 페이로드를 받아야 하는 경우 이 제한을 늘릴 수 있습니다.
+
 ```js
-{
-  vite: {
-    // 예: Astro 프로젝트에 직접 맞춤형 vite 플러그인 추가
-    plugins: [myPlugin()],
+// astro.config.mjs
+export default defineConfig({
+  security: {
+    serverIslandBodySizeLimit: 10 * 1024 * 1024 // 10 MB
   }
-}
+})
+```
+
+#### security.csp
+
+<p>
+
+**타입:** `boolean | object`<br />
+**기본값:** `false`<br />
+<Since v="6.0.0" />
+</p>
+
+[콘텐츠 보안 정책(CSP)](https://developer.mozilla.org/ko/docs/Web/HTTP/CSP) 지원을 활성화하여 문서가 로드할 수 있는 리소스를 제어함으로써 특정 유형의 보안 위협을 최소화합니다. 이는 [크로스 사이트 스크립팅(XSS)](https://developer.mozilla.org/ko/docs/Glossary/Cross-site_scripting) 공격에 대한 추가적인 보호를 제공합니다.
+
+이 기능을 활성화하면 Astro의 처리 및 번들링된 스크립트와 스타일에 대한 기본 보안이 강화되며, 이러한 요소와 추가 콘텐츠 유형을 추가로 구성할 수 있습니다.
+
+이 기능에는 몇 가지 제한 사항이 있습니다:
+- 외부 스크립트 및 외부 스타일은 기본적으로 지원되지 않지만, [자신만의 해시를 제공](#securitycspscriptdirectivehashes)할 수 있습니다.
+- `<ClientRouter />`를 사용하는 [Astro의 뷰 전환](/ko/guides/view-transitions/)은 지원되지 않지만, Astro의 네이티브 뷰 전환 및 내비게이션 API 개선 사항을 사용하지 않는 경우 [브라우저 네이티브 뷰 전환 API로 마이그레이션](https://events-3bg.pages.dev/jotter/astro-view-transitions/)하는 것을 고려할 수 있습니다.
+- Shiki는 현재 지원되지 않습니다. Shiki 함수는 인라인 스타일을 사용하므로 Astro CSP 구현과 함께 작동할 수 없습니다. 프로젝트에 CSP와 구문 강조가 모두 필요한 경우 [`<Prism />` 사용](/ko/guides/syntax-highlighting/#prism-)을 고려하세요.
+- `unsafe-inline` 지시어는 Astro의 CSP 구현과 호환되지 않습니다. 기본적으로 Astro는 번들링된 모든 스크립트(예: 클라이언트 아일랜드)에 대한 해시를 생성하며, 모든 최신 브라우저는 해시 또는 nonce가 있는 지시어에 `unsafe-inline`이 포함될 경우 이를 자동으로 거부합니다.
+
+:::note
+Vite 개발 서버의 특성상 이 기능은 `dev` 모드에서 작업하는 동안 지원되지 않습니다. 대신, `build` 및 `preview`를 사용하여 Astro 프로젝트에서 이 기능을 테스트할 수 있습니다.
+:::
+
+활성화되면 Astro는 각 페이지의 `<head>` 요소 내부에 `<meta>` 요소를 추가합니다.
+이 요소는 `http-equiv="content-security-policy"` 속성을 가지며, `content` 속성은 페이지에서 사용되는 스크립트 및 스타일에 따라 `script-src` 및 `style-src` [지시어](#securitycspdirectives)에 대한 값을 제공합니다.
+
+```html
+
+<head>
+  <meta
+    http-equiv="content-security-policy"
+    content="
+    script-src 'self' 'sha256-somehash';
+    style-src 'self' 'sha256-somehash';
+    "
+  >
+</head>
+```
+
+추가 옵션이 포함된 구성 객체로 이 기능을 활성화하여 `<meta>` 요소를 맞춤설정할 수 있습니다.
+
+##### security.csp.algorithm
+
+<p>
+
+**타입:** `"SHA-256" | "SHA-384" | "SHA-512"`<br />
+**기본값:** `'SHA-256'`<br />
+<Since v="6.0.0" />
+</p>
+
+Astro가 스타일과 스크립트의 해시를 생성할 때 사용할 [해시 함수](https://developer.mozilla.org/ko/docs/Glossary/Hash_function)입니다.
+
+```js title="astro.config.mjs"
+import { defineConfig } from 'astro/config';
+
+export default defineConfig({
+  security: {
+    csp: {
+     algorithm: 'SHA-512'
+    }
+  }
+});
+```
+
+##### security.csp.directives
+
+<p>
+
+**타입:** `Array<string>`<br />
+**기본값:** `[]`<br />
+<Since v="6.0.0" />
+</p>
+
+특정 콘텐츠 타입에 대한 유효한 소스를 정의하는 [CSP 지시어](https://content-security-policy.com/#directive) 목록입니다 (기본적으로 포함된 `script-src` 및 `style-src` 외에). 이 지시어는 모든 페이지에 추가됩니다.
+
+```js title="astro.config.mjs"
+import { defineConfig } from 'astro/config';
+
+export default defineConfig({
+  security: {
+    csp: {
+      directives: [
+        "default-src 'self'",
+        "img-src 'self' https://images.cdn.example.com"
+      ]
+    }
+  }
+});
+```
+빌드 후, `<meta>` 요소는 Astro의 기본 지시어와 함께 여러분의 지시어를 `content` 값에 추가할 것입니다.
+
+```html
+<meta
+  http-equiv="content-security-policy"
+  content="
+    default-src 'self';
+    img-src 'self' 'https://images.cdn.example.com';
+    script-src 'self' 'sha256-somehash';
+    style-src 'self' 'sha256-somehash';
+  "
+>
+```
+
+##### security.csp.styleDirective
+
+<p>
+
+**타입:** `CspStyleDirective`<br />
+**기본값:** `undefined`<br />
+<Since v="6.0.0" />
+</p>
+
+`style-src` 지시어의 기본 소스를 [`resources`](#securitycspstyledirectiveresources) 속성으로 재정의하거나, 추가 [해시](#securitycspstyledirectivehashes)를 렌더링할 수 있도록 하는 구성 객체입니다.
+
+###### security.csp.styleDirective.hashes
+
+<p>
+
+**타입:** `Array<CspHash>`<br />
+**기본값:** `[]`<br />
+<Since v="6.0.0" />
+</p>
+
+렌더링할 추가 해시 목록입니다.
+
+`sha384-`, `sha512-`, `sha256-`으로 시작하는 해시를 제공해야 합니다. 다른 값은 유효성 검사 오류를 발생시킵니다. 이 해시들은 모든 페이지에 추가됩니다.
+
+```js title="astro.config.mjs"
+import { defineConfig } from 'astro/config';
+
+export default defineConfig({
+  security: {
+    csp: {
+      styleDirective: {
+        hashes: [
+          "sha384-styleHash",
+          "sha512-styleHash",
+          "sha256-styleHash"
+        ]
+      }
+    }
+  }
+});
+```
+
+빌드 후, `<meta>` 요소는 `style-src` 지시어에 여러분의 추가 해시를 포함하게 됩니다.
+
+```html
+<meta
+  http-equiv="content-security-policy"
+  content="
+    style-src 'self' 'sha384-styleHash' 'sha512-styleHash' 'sha256-styleHash' 'sha256-generatedByAstro';
+  "
+>
+```
+
+###### security.csp.styleDirective.resources
+
+<p>
+
+**타입:** `Array<string>`<br />
+**기본값:** `[]`<br />
+<Since v="6.0.0" />
+</p>
+
+Astro의 기본 소스를 덮어쓰기 위한 `style-src` 지시어의 유효한 소스 목록입니다. 이 목록에는 기본적으로 `'self'`가 포함되지 않으므로, 유지하려면 이 목록에 포함해야 합니다. 이 리소스는 모든 페이지에 추가됩니다.
+
+```js title="astro.config.mjs"
+import { defineConfig } from 'astro/config';
+
+export default defineConfig({
+  security: {
+    csp: {
+      styleDirective: {
+        resources: [
+          "'self'",
+          "https://styles.cdn.example.com"
+        ]
+      }
+    }
+  }
+});
+```
+
+빌드 후, `<meta>` 요소는 대신 여러분의 소스를 `style-src` 지시어에 적용할 것입니다.
+
+```html
+<head>
+  <meta
+    http-equiv="content-security-policy"
+    content="
+     style-src 'self' https://styles.cdn.example.com 'sha256-somehash';
+    "
+  >
+</head>
+```
+
+리소스가 여러 번 삽입되거나 여러 소스(예: `csp` 구성에 정의된 것과 [CSP 런타임 API](/ko/reference/api-reference/#csp)를 사용하여 추가된 것)에서 제공되는 경우, Astro는 모든 리소스를 병합하고 중복을 제거하여 `<meta>` 요소를 생성합니다.
+
+##### security.csp.scriptDirective
+
+<p>
+
+**타입:** `CspScriptDirective`<br />
+**기본값:** `undefined`<br />
+<Since v="6.0.0" />
+</p>
+
+`script-src` 지시어의 기본 소스를 [`resources`](#securitycspscriptdirectiveresources) 속성으로 재정의하거나, 추가 [해시](#securitycspscriptdirectivehashes)를 렌더링할 수 있도록 하는 구성 객체입니다.
+
+###### security.csp.scriptDirective.hashes
+
+<p>
+
+**타입:** `Array<CspHash>`<br />
+**기본값:** `[]`<br />
+<Since v="6.0.0" />
+</p>
+
+렌더링할 추가 해시 목록입니다.
+
+`sha384-`, `sha512-`, `sha256-`으로 시작하는 해시를 제공해야 합니다. 다른 값은 유효성 검사 오류를 발생시킵니다. 이 해시는 모든 페이지에 추가됩니다.
+
+```js title="astro.config.mjs"
+import { defineConfig } from 'astro/config';
+
+export default defineConfig({
+  security: {
+    csp: {
+      scriptDirective: {
+        hashes: [
+          "sha384-scriptHash",
+          "sha512-scriptHash",
+          "sha256-scriptHash"
+        ]
+      }
+    }
+  }
+});
+```
+
+빌드 후, `<meta>` 요소는 `script-src` 지시어에 여러분의 추가 해시를 포함하게 됩니다.
+
+```html
+<meta
+  http-equiv="content-security-policy"
+  content="
+    script-src 'self' 'sha384-scriptHash' 'sha512-scriptHash' 'sha256-scriptHash' 'sha256-generatedByAstro';
+  "
+>
+```
+
+###### security.csp.scriptDirective.resources
+
+<p>
+
+**타입:** `Array<string>`<br />
+**기본값:** `[]`<br />
+<Since v="6.0.0" />
+</p>
+
+`script-src` 지시어에 대한 유효한 소스 목록으로, Astro의 기본 소스를 재정의합니다. 기본적으로 `'self'`는 포함되지 않으므로, 이를 유지하려면 이 목록에 포함해야 합니다. 이러한 리소스는 모든 페이지에 추가됩니다.
+
+```js title="astro.config.mjs"
+import { defineConfig } from 'astro/config';
+
+export default defineConfig({
+  security: {
+    csp: {
+      scriptDirective: {
+        resources: [
+          "'self'", "https://cdn.example.com"
+        ]
+      }
+    }
+  }
+});
+```
+
+빌드 후, `<meta>` 요소는 대신 여러분의 소스를 `script-src` 지시어에 적용할 것입니다.
+
+```html
+<head>
+  <meta
+    http-equiv="content-security-policy"
+    content="
+     script-src 'self' https://cdn.example.com 'sha256-somehash';
+    "
+  >
+</head>
+```
+
+리소스가 여러 번 삽입되거나 여러 소스(예: `csp` 구성에 정의된 것과 [CSP 런타임 API](/ko/reference/api-reference/#csp)를 사용하여 추가된 것)에서 제공되는 경우, Astro는 모든 리소스를 병합하고 중복을 제거하여 `<meta>` 요소를 생성합니다.
+
+###### security.csp.scriptDirective.strictDynamic
+
+<p>
+
+**타입:** `boolean`<br />
+**기본값:** `false`<br />
+<Since v="6.0.0" />
+</p>
+
+스크립트의 동적 주입을 지원하기 위해 [`strict-dynamic` 키워드](https://developer.mozilla.org/ko/docs/Web/HTTP/Headers/Content-Security-Policy/script-src#strict-dynamic)를 활성화합니다.
+
+```js title="astro.config.mjs"
+import { defineConfig } from 'astro/config';
+
+export default defineConfig({
+  security: {
+    csp: {
+      scriptDirective: {
+        strictDynamic: true
+      }
+    }
+  }
+});
 ```
 
 ## 빌드 옵션
@@ -846,44 +1225,50 @@ Astro가 응답하도록 허용된 호스트 이름의 목록입니다. 값이 `
 </p>
 
 Astro 프로젝트의 세션 스토리지를 구성합니다. 이는 세션 데이터를 영구적인 방식으로 저장하여 여러 요청에 걸쳐 접근할 수 있도록 하는 데 사용됩니다.
+
 일부 어댑터는 기본 세션 드라이버를 제공할 수 있지만, 사용자 정의 구성으로 이를 덮어쓸 수 있습니다.
 
-더 자세한 내용은 [세션 가이드](/ko/guides/sessions/)를 참조하세요.
-
 ```js title="astro.config.mjs"
-  {
-    session: {
-      // Unstorage 드라이버의 이름
-      driver: 'redis',
-      // 드라이버에 따른 필수 옵션
-      options: {
-        url: process.env.REDIS_URL,
-      },
-      ttl: 3600, // 1시간
-    }
+import { defineConfig, sessionDrivers } from 'astro/config';
+
+export default defineConfig({
+  session: {
+    driver: sessionDrivers.redis({
+      // 옵션은 드라이버에 따라 다르며 일부는 필수일 수 있습니다.
+      url: process.env.REDIS_URL
+    }),
   }
+});
 ```
+
+세션 드라이버는 빌드 시 구성됩니다. 즉, 드라이버 구성에 사용된 환경 변수가 인라인됩니다. [런타임에 구성을 재정의](/ko/guides/sessions/#런타임에-구성-재정의하기)하려면 고유한 드라이버 엔트리포인트를 만들어야 합니다.
+
+자세한 내용은 [세션 가이드](/ko/guides/sessions/)를 참조하세요.
 
 ### session.driver
 
 <p>
 
-**타입:** `string | undefined`<br />
+**타입:** `SessionDriverConfig | undefined`<br />
 <Since v="5.7.0" />
 </p>
 
-세션 스토리지를 위해 사용할 Unstorage 드라이버입니다. [Node](/ko/guides/integrations-guide/node/#세션), [Cloudflare](/ko/guides/integrations-guide/cloudflare/#세션), [Netlify](/ko/guides/integrations-guide/netlify/#세션) 어댑터는 자동으로 기본 드라이버를 구성하지만, 기본 드라이버를 제공하지 않는 어댑터를 선호하거나 사용하는 경우 사용자 정의 드라이버를 지정할 수 있습니다.
+세션 스토리지를 위해 사용할 드라이버입니다. [Node](/ko/guides/integrations-guide/node/#세션), [Cloudflare](/ko/guides/integrations-guide/cloudflare/#세션), [Netlify](/ko/guides/integrations-guide/netlify/#세션) 어댑터는 자동으로 기본 드라이버를 구성하지만, 기본 드라이버를 제공하지 않는 어댑터를 선호하거나 사용하는 경우 사용자 정의 드라이버를 지정할 수 있습니다.
 
-이 값은 [Unstorage 드라이버 문서](https://unstorage.unjs.io/drivers)에 있는 "드라이버 이름"입니다.
+```js title="astro.config.mjs" ins={7-9} ins=" sessionDrivers "
+import { defineConfig, sessionDrivers } from 'astro/config'
+import vercel from '@astrojs/vercel'
 
-```js title="astro.config.mjs" ins={4}
-{
-  adapter: vercel(),
+export default defineConfig({
+  adapter: vercel()
   session: {
-    driver: "redis",
-  },
-}
+    driver: sessionDrivers.redis({
+      url: process.env.REDIS_URL
+    }),
+  }
+})
 ```
+
 :::note
 일부 드라이버는 추가 패키지 설치가 필요할 수 있습니다. 또한 일부 드라이버는 환경 변수나 자격 증명 설정을 요구할 수도 있습니다. 자세한 내용은 [Unstorage 문서](https://unstorage.unjs.io/drivers)를 참조하세요.
 :::
@@ -896,6 +1281,10 @@ Astro 프로젝트의 세션 스토리지를 구성합니다. 이는 세션 데�
 **기본값:** `{}`<br />
 <Since v="5.7.0" />
 </p>
+
+:::caution[사용되지 않음]
+이 옵션은 더 이상 사용되지 않으며 향후 주요 버전에서 삭제될 예정입니다. 대신 드라이버 함수에 옵션을 전달하세요.
+:::
 
 세션 스토리지를 위해 사용할 드라이버별 옵션입니다. 옵션은 사용 중인 드라이버에 따라 다릅니다. 각 드라이버에서 사용할 수 있는 옵션에 대한 자세한 내용은 [Unstorage 문서](https://unstorage.unjs.io/drivers)를 참조하세요.
 
@@ -955,7 +1344,7 @@ Astro 프로젝트의 세션 스토리지를 구성합니다. 이는 세션 데�
 
 세션 값에 대한 선택적 기본 만료 시간(초)입니다.
 
-기본적으로 세션 값은 삭제되거나 세션이 파괴될 때까지 유지되며, 특정 시간이 경과해도 자동으로 만료되지 않습니다. 세션 값에 대한 기본 만료 기간을 추가하려면 `session.ttl`을 설정하세요. [`session.set()`](/ko/reference/api-reference/#set)에 `ttl` 옵션을 전달하면 해당 개별 항목에 대한 전역 기본값을 덮어씁니다.
+기본적으로 세션 값은 삭제되거나 세션이 파괴될 때까지 유지되며, 특정 시간이 경과해도 자동으로 만료되지 않습니다. 세션 값에 대한 기본 만료 기간을 추가하려면 `session.ttl`을 설정하세요. [`session.set()`](/ko/reference/api-reference/#sessionset)에 `ttl` 옵션을 전달하면 해당 개별 항목에 대한 전역 기본값을 덮어씁니다.
 
 ```js title="astro.config.mjs" ins={3-4}
 {
@@ -987,6 +1376,19 @@ Astro 프로젝트의 세션 스토리지를 구성합니다. 이는 세션 데�
 Astro 개발 툴바를 활성화할지 여부입니다. 이 툴바를 사용하면 페이지 아일랜드를 검사하고 성능 및 접근성에 대한 유용한 정보를 볼 수 있습니다.
 
 이 옵션은 전체 프로젝트로 범위가 지정되며, 자신에 대해서만 툴바를 비활성화하려면 `npm run astro preferences disable devToolbar`를 실행하세요. 모든 Astro 프로젝트에 대한 툴바를 비활성화하려면 `npm run astro preferences disable devToolbar --global`을 실행하세요.
+
+### devToolbar.placement
+
+<p>
+
+**타입:** `'bottom-left' | 'bottom-center' | 'bottom-right'`<br />
+**기본값:** `'bottom-center'`<br />
+<Since v="5.17.0" />
+</p>
+
+화면에서 Astro 개발 툴바의 기본 배치입니다.
+
+툴바 설정 UI를 통해서도 배치를 변경할 수 있습니다. 배치가 변경되면, 사용자 설정은 `localStorage`에 저장되며 이 구성 값을 덮어씁니다.
 
 ## 프리페치 옵션
 
@@ -1104,6 +1506,13 @@ Astro의 자산 지원에 사용되는 이미지 서비스를 설정합니다.
 			 entrypoint: 'astro/assets/services/sharp',
 			 config: {
 				 limitInputPixels: false,
+				 webp: {
+					 effort: 6,
+					 alphaQuality: 80,
+				 },
+				 jpeg: {
+					 mozjpeg: true,
+				 },
       },
 		 },
   },
@@ -1123,6 +1532,88 @@ Astro의 자산 지원에 사용되는 이미지 서비스를 설정합니다.
 Sharp 이미지 서비스가 처리할 이미지 크기를 제한할지 여부입니다.
 
 Sharp 이미지 서비스의 기본 이미지 크기 제한을 우회하고 큰 이미지를 처리하려면 `false`를 설정하세요.
+
+#### image.service.config.kernel
+
+<p>
+
+**타입:** `string | undefined`<br />
+**기본값:** `undefined`<br />
+<Since v="5.17.0" />
+</p>
+
+Sharp 이미지 서비스에서 [이미지 크기를 조정하는 데 사용되는 기본 커널](https://sharp.pixelplumbing.com/api-resize/#resize)입니다.
+
+기본적으로 이 값은 `undefined`이며, Sharp의 기본 커널인 `lanczos3`에 매핑됩니다.
+
+#### image.service.config.jpeg
+
+<p>
+
+**타입:** `Record<string, any> | undefined`<br />
+**기본값:** `undefined`<br />
+<Since v="6.1.0" />
+</p>
+
+Astro의 내장 Sharp 이미지 서비스를 사용할 때 `sharp().jpeg()`에 전달되는 기본 인코더 옵션입니다.
+
+`mozjpeg`, `progressive`, `chromaSubsampling` 또는 기본 `quality`와 같은 옵션에 사용할 수 있습니다.
+`<Image />`, `<Picture />`, `getImage()`에서 설정한 이미지별 `quality` 값이 여전히 우선합니다.
+
+#### image.service.config.webp
+
+<p>
+
+**타입:** `Record<string, any> | undefined`<br />
+**기본값:** `undefined`<br />
+<Since v="6.1.0" />
+</p>
+
+Astro의 내장 Sharp 이미지 서비스를 사용할 때 `sharp().webp()`에 전달되는 기본 인코더 옵션입니다.
+
+`effort`, `alphaQuality`, `lossless`, `nearLossless` 또는 기본 `quality`와 같은 옵션에 사용할 수 있습니다.
+`<Image />`, `<Picture />`, `getImage()`에서 설정한 이미지별 `quality` 값이 여전히 우선합니다.
+
+#### image.service.config.avif
+
+<p>
+
+**타입:** `Record<string, any> | undefined`<br />
+**기본값:** `undefined`<br />
+<Since v="6.1.0" />
+</p>
+
+Astro의 내장 Sharp 이미지 서비스를 사용할 때 `sharp().avif()`에 전달되는 기본 인코더 옵션입니다.
+
+`effort`, `chromaSubsampling`, `bitdepth`, `lossless` 또는 기본 `quality`와 같은 옵션에 사용할 수 있습니다.
+`<Image />`, `<Picture />`, `getImage()`에서 설정한 이미지별 `quality` 값이 여전히 우선합니다.
+
+#### image.service.config.png
+
+<p>
+
+**타입:** `Record<string, any> | undefined`<br />
+**기본값:** `undefined`<br />
+<Since v="6.1.0" />
+</p>
+
+Astro의 내장 Sharp 이미지 서비스를 사용할 때 `sharp().png()`에 전달되는 기본 인코더 옵션입니다.
+
+`compressionLevel`, `effort`, `palette` 또는 기본 `quality`와 같은 옵션에 사용할 수 있습니다.
+`<Image />`, `<Picture />`, `getImage()`에서 설정한 이미지별 `quality` 값이 여전히 우선합니다.
+
+### image.dangerouslyProcessSVG
+
+<p>
+
+**타입:** `boolean`<br />
+**기본값:** `false`<br />
+<Since v="6.3.0" />
+</p>
+
+SVG 소스 이미지가 이미지 최적화 파이프라인에서 처리되도록 허용합니다.
+
+특별히 조작된 SVG는 처리 비용이 매우 많이 들 수 있으며, 악의적인 행위자가 서비스 거부 공격을 실행하는 데 사용할 수 있으므로 이 옵션은 기본적으로 비활성화되어 있습니다. SVG 이미지의 출처를 신뢰하고 처리 시 발생할 수 있는 위험을 이해하는 경우에만 이 옵션을 활성화하세요.
 
 ### image.domains
 
@@ -1178,14 +1669,17 @@ Sharp 이미지 서비스의 기본 이미지 크기 제한을 우회하고 큰 
 }
 ```
 
-아래 설명과 같이 와일드카드를 사용하여 허용되는 `hostname` 및 `pathname` 값을 정의할 수 있습니다. 그렇지 않으면 제공된 정확한 값만 구성됩니다.
-`hostname`:
-- '**.' 로 시작하면 모든 하위 도메인 ('endsWith')을 허용합니다.
-- '*.' 로 시작하면 한 수준의 하위 도메인만 허용합니다.
+아래 설명과 같이 와일드카드를 사용하여 허용할 `hostname` 및 `pathname` 값을 정의할 수 있습니다. 그렇지 않으면 지정한 값과 정확히 일치하는 경우만 허용됩니다.
 
-`pathname`:
-- 모든 하위 경로 ('startsWith')를 허용하려면 '/\*\*' 로 끝납니다.
-- 한 수준의 하위 경로만 허용하려면 '/\*' 로 끝납니다.
+`hostname` 패턴:
+  - `**.`으로 시작하면 모든 하위 도메인을 허용합니다 (`endsWith`와 유사).
+  - `*.`으로 시작하면 1단계 하위 도메인만 허용합니다.
+
+`pathname` 패턴:
+  - `/**`로 끝나면 모든 하위 경로를 허용합니다 (`startsWith`와 유사).
+  - `/*`로 끝나면 1단계 하위 경로만 허용합니다.
+
+이미지 URL이 원격 패턴과 일치하면 HTTP 리디렉션도 수행됩니다. 이미지를 로드하려면 최종 목적지 URL이 허용된 원격 패턴 중 하나여야 합니다.
 
 ### image.responsiveStyles
 
@@ -1371,6 +1865,11 @@ export default defineConfig({
 
 ### markdown.remarkPlugins
 
+
+:::caution[지원 중단]
+대신 `@astrojs/markdown-remark`의 `unified({ remarkPlugins })`에 `remarkPlugins`를 전달한 뒤, 이를 `markdown.processor`로 설정하세요. 이 옵션은 향후 메이저 버전에서 제거될 예정입니다.
+:::
+
 <p>
 
 **타입:** `RemarkPlugins`
@@ -1390,6 +1889,11 @@ import remarkToc from 'remark-toc';
 
 ### markdown.rehypePlugins
 
+
+:::caution[지원 중단]
+대신 `@astrojs/markdown-remark`의 `unified({ rehypePlugins })`에 `rehypePlugins`를 전달한 뒤, 이를 `markdown.processor`로 설정하세요. 이 옵션은 향후 메이저 버전에서 제거될 예정입니다.
+:::
+
 <p>
 
 **타입:** `RehypePlugins`
@@ -1408,6 +1912,11 @@ import { rehypeAccessibleEmojis } from 'rehype-accessible-emojis';
 ```
 
 ### markdown.gfm
+
+
+:::caution[지원 중단]
+대신 프로세서에 `gfm`을 전달하세요(예: `unified({ gfm: false })`). 이 옵션은 향후 메이저 버전에서 제거될 예정입니다.
+:::
 
 <p>
 
@@ -1429,25 +1938,31 @@ Astro는 기본적으로 [GitHub 기반 Markdown](https://github.com/remarkjs/re
 
 ### markdown.smartypants
 
+
+:::caution[지원 중단]
+대신 프로세서에 `smartypants`를 전달하세요(예: `unified({ smartypants: false })`). 이 옵션은 향후 메이저 버전에서 제거될 예정입니다.
+:::
+
 <p>
 
-**타입:** `boolean`<br />
+**타입:** `boolean | Smartypants`<br />
 **기본값:** `true`<br />
 
 <Since v="2.0.0" />
 </p>
 
-Astro는 기본적으로 [SmartyPants 포매터](https://daringfireball.net/projects/smartypants/)를 사용합니다. 이를 비활성화하려면 `smartypants` 플래그를 `false`로 설정하세요.
+[SmartyPants 포매터](https://daringfireball.net/projects/smartypants/)를 사용하여 곧은 따옴표를 둥근 따옴표로, 대시를 en/em 대시로, 세 개의 점을 줄임표로 변환할지 여부입니다.
 
-```js
-{
-  markdown: {
-    smartypants: false,
-  }
-}
-```
+이를 비활성화하려면 `smartypants` 플래그를 `false`로 설정하세요.
+
+타이포그래피를 더 세밀하게 제어하려면 대신 [`retext-smartypants`에서 지원하는 속성](https://github.com/retextjs/retext-smartypants?tab=readme-ov-file#fields)이 포함된 구성 객체를 지정할 수 있습니다.
 
 ### markdown.remarkRehype
+
+
+:::caution[지원 중단]
+대신 `@astrojs/markdown-remark`의 `unified({ remarkRehype })`에 `remarkRehype`를 전달한 뒤, 이를 `markdown.processor`로 설정하세요. 이 옵션은 향후 메이저 버전에서 제거될 예정입니다.
+:::
 
 <p>
 
@@ -1464,6 +1979,31 @@ Astro는 기본적으로 [SmartyPants 포매터](https://daringfireball.net/proj
     remarkRehype: { footnoteLabel: "Footnotes", footnoteBackLabel: "Back to reference 1"},
   },
 };
+```
+
+### markdown.processor
+
+<p>
+
+**타입:** `MarkdownProcessor`<br />
+<Since v="6.4.0" />
+</p>
+
+`.md` 파일을 렌더링할 때 사용할 Markdown 프로세서를 구성합니다. 기본값은 `@astrojs/markdown-remark`의 `unified()`(remark/rehype 파이프라인)입니다.
+
+```js
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import { unified } from '@astrojs/markdown-remark';
+import remarkToc from 'remark-toc';
+
+export default defineConfig({
+  markdown: {
+    processor: unified({
+      remarkPlugins: [remarkToc],
+    }),
+  },
+});
 ```
 
 ## i18n
@@ -1607,14 +2147,14 @@ export default defineConfig({
 <p>
 
 **타입:** `boolean`<br />
-**기본값:** `true`<br />
+**기본값:** `false`<br />
 
 <Since v="4.2.0" />
 </p>
 
 `prefixDefaultLocale: true`가 설정된 경우 `src/pages/index.astro`에 의해 생성된 홈 URL (`/`)이 `/[defaultLocale]`로 리디렉션되는지 여부를 구성합니다.
 
-사이트 루트에서 자동 리디렉션을 비활성화하려면 `redirectToDefaultLocale: false`를 설정하세요.
+사이트 루트에서 자동 리디렉션을 활성화하려면 `redirectToDefaultLocale: true`를 설정하세요.
 
 ```js
 // astro.config.mjs
@@ -1624,7 +2164,7 @@ export default defineConfig({
     locales: ['en', 'fr'],
     routing: {
       prefixDefaultLocale: true,
-      redirectToDefaultLocale: false,
+      redirectToDefaultLocale: true,
     },
   },
 });
@@ -1727,7 +2267,9 @@ Astro의 [환경 변수](/ko/guides/environment-variables/)에 대한 자세한 
 <Since v="5.0.0" />
 </p>
 
-`envField`를 사용하여 환경 변수의 데이터 타입과 속성을 정의하는 객체입니다: `context`(클라이언트 또는 서버), `access`(공개 또는 비밀), 사용할 `default` 값, 그리고 이 환경 변수가 `optional`인지 여부(기본값은 `false`).
+Zod 유효성 검사를 통해 강제되고 TypeScript 지원(예: 자동 완성, 타입 안정성)이 제공되는 환경 변수를 정의합니다. 각 키는 변수 이름에 해당하며, 값은 [`envField`로 정의된](/ko/reference/modules/astro-config/#envfield) 데이터 타입 및 유효성 검사에 해당합니다.
+
+문자열, 숫자, 열거형, 불리언의 네 가지 데이터 타입을 지원합니다. 각 타입에는 `context` (client 또는 server), `access` 수준 (public 또는 secret)이 필요하며, `default` 값이나 변수의 `optional` 여부(기본값은 `false`)와 같은 추가 유효성 검사 옵션을 설정할 수 있습니다.
 
 ```js
 // astro.config.mjs
@@ -1741,46 +2283,6 @@ export default defineConfig({
       API_SECRET: envField.string({ context: "server", access: "secret" }),
     }
   }
-})
-```
-
-`envField`는 문자열, 숫자, 열거형, 불리언의 네 가지 데이터 타입을 지원합니다. `context`와 `access`는 모든 데이터 타입에 필요한 속성입니다. 다음은 각 데이터 타입에 사용할 수 있는 전체 속성 목록입니다:
-
-```js
-import { envField } from "astro/config"
-
-envField.string({
-   // context & access
-   optional: true,
-   default: "foo",
-   max: 20,
-   min: 1,
-   length: 13,
-   url: true,
-   includes: "oo",
-   startsWith: "f",
-   endsWith: "o",
-})
-envField.number({
-   // context & access
-   optional: true,
-   default: 15,
-   gt: 2,
-   min: 1,
-   lt: 3,
-   max: 4,
-   int: true,
-})
-envField.boolean({
-   // context & access
-   optional: true,
-   default: true,
-})
-envField.enum({
-   // context & access
-   values: ['foo', 'bar', 'baz'], // 필수
-   optional: true,
-   default: 'baz',
 })
 ```
 
@@ -1809,4 +2311,266 @@ export default defineConfig({
     validateSecrets: true
   }
 })
+```
+
+## fonts
+
+<p>
+
+**타입:** `Array<FontFamily>`<br />
+**기본값:** `[]`<br />
+<Since v="6.0.0" />
+</p>
+
+폰트를 구성하고 폰트별로 일부 맞춤 옵션을 지정할 수 있습니다.
+
+[Astro에서 커스텀 폰트를 사용하는 방법](/ko/guides/fonts/)에 대한 자세한 내용은 가이드를 참조하세요.
+
+### font.provider
+
+<p>
+
+**타입:** `FontProvider`<br />
+<Since v="6.0.0" />
+</p>
+
+폰트 파일의 소스입니다. [내장 제공자](/ko/reference/font-provider-reference/#내장-제공자)를 사용하거나 나만의 [커스텀 제공자](/ko/reference/font-provider-reference/#폰트-제공자-만들기)를 작성할 수 있습니다.
+
+```js
+import { defineConfig, fontProviders } from "astro/config";
+
+export default defineConfig({
+  fonts: [{
+    provider: fontProviders.google(),
+    name: "Roboto",
+    cssVariable: "--font-roboto"
+  }]
+});
+```
+
+### font.name
+
+<p>
+
+**타입:** `string`<br />
+<Since v="6.0.0" />
+</p>
+
+폰트 제공자가 식별하는 폰트 패밀리 이름입니다.
+
+```js
+name: "Roboto"
+```
+
+### font.cssVariable
+
+<p>
+
+**타입:** `string`<br />
+<Since v="6.0.0" />
+</p>
+
+CSS 변수 형태(즉, `--`로 시작)로 선택한 유효한 [ident](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/ident)입니다.
+
+```js
+cssVariable: "--font-roboto"
+```
+
+### font.fallbacks
+
+<p>
+
+**타입:** `Array<string>`<br />
+**기본값:** `["sans-serif"]`<br />
+<Since v="6.0.0" />
+</p>
+
+선택한 폰트를 사용할 수 없거나 로딩 중일 때 사용할 폰트 배열입니다. 대체 폰트는 나열된 순서대로 선택됩니다. 사용 가능한 첫 번째 폰트가 사용됩니다.
+
+```js
+fallbacks: ["CustomFont", "serif"]
+```
+
+대체 폰트를 완전히 비활성화하려면 빈 배열을 구성하세요.
+
+```js
+fallbacks: []
+```
+
+폰트의 의도된 모양과 일치하는 [일반 패밀리 이름](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/font-family#generic-name)을 하나 이상 지정하세요. 그러면 Astro는 폰트 메트릭을 사용하여 [최적화된 대체 폰트](https://developer.chrome.com/blog/font-fallbacks) 생성을 시도합니다. 이 최적화를 비활성화하려면 `optimizedFallbacks`를 false로 설정하세요.
+
+### font.optimizedFallbacks
+
+<p>
+
+**타입:** `boolean`<br />
+**기본값:** `true`<br />
+<Since v="6.0.0" />
+</p>
+
+대체 폰트를 생성할 때 Astro의 기본 최적화를 활성화할지 여부입니다. [`fallbacks`](#fontfallbacks)가 생성되는 방식을 완전히 제어하기 위해 이 기본 최적화를 비활성화할 수 있습니다.
+
+```js
+optimizedFallbacks: false
+```
+
+### font.weights
+
+<p>
+
+**타입:** `Array<(number|string)>`<br />
+**기본값:** `[400]`<br />
+<Since v="6.0.0" />
+</p>
+
+[폰트 두께](https://developer.mozilla.org/ko/docs/Web/CSS/font-weight) 배열입니다. 구성에 값을 지정하지 않으면 불필요한 다운로드를 방지하기 위해 기본적으로 두께 `400`만 포함됩니다. 다른 폰트 두께에 액세스하려면 이 속성을 포함해야 합니다.
+
+```js
+weights: [200, "400", "bold"]
+```
+
+관련 폰트가 [가변 폰트](https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Fonts/Variable_fonts)인 경우 두께 범위를 지정할 수 있습니다.
+
+```js
+weights: ["100 900"]
+```
+
+### font.styles
+
+<p>
+
+**타입:** `Array<("normal"|"italic"|"oblique")>`<br />
+**기본값:** `["normal", "italic"]`<br />
+<Since v="6.0.0" />
+</p>
+
+[폰트 스타일](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/font-style) 배열입니다.
+
+```js
+styles: ["normal", "oblique"]
+```
+
+### font.subsets
+
+<p>
+
+**타입:** `Array<string>`<br />
+**기본값:** `["latin"]`<br />
+<Since v="6.0.0" />
+</p>
+
+미리 로드할 [폰트 서브셋](https://knaap.dev/posts/font-subsetting/) 목록을 정의합니다.
+
+```js
+subsets: ["latin"]
+```
+
+### font.formats
+
+<p>
+
+**타입:** `Array<("woff2"|"woff"|"otf"|"ttf"|"eot")>`<br />
+**기본값:** `["woff2"]`<br />
+<Since v="6.0.0" />
+</p>
+
+[폰트 형식](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@font-face/src) 배열입니다.
+
+```js
+formats: ["woff2", "woff"]
+```
+
+### font.options
+
+<p>
+
+**타입:** `Record<string, any>`<br />
+<Since v="6.0.0" />
+</p>
+
+제공자별 옵션을 전달하는 객체입니다. 폰트 패밀리 [제공자](#fontprovider)에 따라 자동으로 타입이 지정됩니다.
+
+```js
+options: {
+  experimental: {
+    glyphs: ["a"]
+  }
+}
+```
+
+### font.display
+
+<p>
+
+**타입:** `"auto" | "block" | "swap" | "fallback" | "optional"`<br />
+**기본값:** `"swap"`<br />
+<Since v="6.0.0" />
+</p>
+
+다운로드되어 사용할 준비가 된 시점에 따라 [폰트가 표시되는 방식](https://developer.mozilla.org/ko/docs/Web/CSS/@font-face/font-display)을 정의합니다.
+
+```js
+display: "block"
+```
+
+### font.unicodeRange
+
+<p>
+
+**타입:** `Array<string>`<br />
+**기본값:** `undefined`<br />
+<Since v="6.0.0" />
+</p>
+
+특정 [유니코드 문자 범위](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@font-face/unicode-range)를 기반으로 폰트를 다운로드하고 사용해야 하는 시점을 결정합니다. 페이지의 문자가 구성된 범위와 일치하면 브라우저는 폰트를 다운로드하여 페이지에서 모든 문자를 사용할 수 있게 됩니다. 단일 폰트에 대해 미리 로드된 문자 서브셋을 구성하려면 대신 [subsets](#fontsubsets) 속성을 참조하세요.
+
+이는 웹사이트의 특정 부분에서 다른 문자를 사용하고 별도의 폰트로 표시되는 경우 불필요한 폰트 다운로드를 피하기 위한 현지화에 유용할 수 있습니다. 예를 들어 영어와 일본어 버전을 모두 제공하는 웹사이트는 `unicodeRange`에 제공된 일본어 문자가 포함되지 않은 영어 버전 페이지에서 브라우저가 일본어 폰트를 다운로드하지 않도록 방지할 수 있습니다.
+
+```js
+unicodeRange: ["U+26"]
+```
+
+### font.stretch
+
+<p>
+
+**타입:** `string`<br />
+**기본값:** `undefined`<br />
+<Since v="6.0.0" />
+</p>
+
+[폰트 장평](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@font-face/font-stretch)입니다.
+
+```js
+stretch: "condensed"
+```
+
+### font.featureSettings
+
+<p>
+
+**타입:** `string`<br />
+**기본값:** `undefined`<br />
+<Since v="6.0.0" />
+</p>
+
+[타이포그래피 폰트 기능](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@font-face/font-feature-settings) (예: 합자, 작은 대문자, 스와시)을 제어합니다.
+
+```js
+featureSettings: "'smcp' 2"
+```
+
+### font.variationSettings
+
+<p>
+
+**타입:** `string`<br />
+**기본값:** `undefined`<br />
+<Since v="6.0.0" />
+</p>
+
+폰트 [변형 설정](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@font-face/font-variation-settings)입니다.
+
+```js
+variationSettings: "'xhgt' 0.7"
 ```

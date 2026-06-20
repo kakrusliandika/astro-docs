@@ -5,11 +5,9 @@ sidebar:
   label: Decap CMS
 type: cms
 stub: true
-service: Decap CMS
+logo: decap-cms
 i18nReady: true
 ---
-import Grid from '~/components/FluidGrid.astro';
-import Card from '~/components/ShowcaseCard.astro';
 import { Steps } from '@astrojs/starlight/components';
 import { FileTree } from '@astrojs/starlight/components';
 import PackageManagerTabs from '~/components/tabs/PackageManagerTabs.astro';
@@ -101,7 +99,7 @@ Decap 会在你的项目中添加一个路由（通常是 `/admin`），这个�
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="robots" content="noindex" />
-        <link href="/admin/config.yml" type="text/yaml" rel="cms-config-url" />
+        <link href="/config.yml" type="text/yaml" rel="cms-config-url" />
         <title>内容管理器</title>
       </head>
       <body>
@@ -147,18 +145,3 @@ Decap CMS 最初是由 Netlify 开发的，并且对 [Netlify 身份验证](http
 - 博客文章：[使用基于 Git 的 CMS 管理 Astro 站点内容](https://aalam.vercel.app/blog/astro-and-git-cms-netlify) 作者：Aftab Alam
 
 - YouTube教程：[在几分钟内使用 Astro 和 Netlify CMS 创建自定义博客！](https://www.youtube.com/watch?v=3yip2wSRX_4) 作者：Kumail Pirzada
-
-## 生产网站
-
-以下网站在生产中使用 Astro + Decap CMS：
-
-- [yunielacosta.com](https://www.yunielacosta.com/) 作者：Yuniel Acosta — [GitHub 上的源代码](https://github.com/yacosta738/yacosta738.github.io) (Netlify CMS)
-- [portfolioris.nl](https://www.portfolioris.nl/) 作者：Joris Hulsbosch – [GitHub 上的源代码](https://github.com/portfolioris/portfolioris.nl)
-
-## Themes
-
-<Grid >
-  <Card title="Astros" href="https://astro.build/themes/details/astros" thumbnail="astros.png"/>
-  <Card title="Enhanced Astro Starter" href="https://astro.build/themes/details/enhanced-astro-starter" thumbnail="enhanced-astro-starter.png"/>
-  <Card title="Astro Decap CMS Starter" href="https://astro.build/themes/details/astro-decap-cms-starter" thumbnail="astro-decap-starter.png"/>
-</Grid>

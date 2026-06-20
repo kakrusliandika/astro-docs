@@ -1,13 +1,14 @@
 ---
-title: Astro.glob() used outside of an Astro file.
+title: Astro.glob() usado fuera de un archivo Astro.
 i18nReady: true
 githubURL: https://github.com/withastro/astro/blob/main/packages/astro/src/core/errors/errors-data.ts
 ---
 
-> **AstroGlobUsedOutside**: `Astro.glob(GLOB_STR)` solo se puede utilizar en archivos `.astro`. En su lugar, se puede utilizar `import.meta.glob(GLOB_STR)` para obtener un resultado similar.
+:::caution[Obsoleto]
+Este error se eliminó en Astro v6.0.0 junto con la eliminación de `Astro.glob()`.
+:::
+
+> **AstroGlobUsedOutside**: `Astro.glob(GLOB_STR)` solo puede usarse en archivos `.astro`. En su lugar, puedes usar `import.meta.glob(GLOB_STR)` para lograr un resultado similar.
 
 ## ¿Qué salió mal?
-`Astro.glob()` solo se puede utilizar en archivos `.astro`. En su lugar, puedes usar [`import.meta.glob()`](https://vite.dev/guide/features.html#glob-import) para obtener el mismo resultado.
-
-**Ver también:**
--  [Astro.glob](/es/reference/api-reference/#astroglob)
+`Astro.glob()` solo puede usarse en archivos `.astro`. Puedes usar [`import.meta.glob()`](https://es.vite.dev/guide/features#importaciones-glob) para conseguir el mismo resultado.

@@ -4,10 +4,13 @@ unitTitle: 初めてのAstroサイトの作成とデプロイ
 title: 'ユニット1の導入 - 準備'
 description: >-
   「初めてのAstroブログ」チュートリアル -
+
   開発環境を準備し、初めてのAstroサイトを作成してデプロイする
 i18nReady: true
+head:
+  - tag: title
+    content: 'ブログ作成チュートリアル: ユニット1 - 準備 | Docs'
 ---
-
 import Checklist from '~/components/Checklist.astro';
 import Box from '~/components/tutorial/Box.astro';
 import { Steps } from '@astrojs/starlight/components';
@@ -16,16 +19,17 @@ import { Steps } from '@astrojs/starlight/components';
 
 このユニットでは、開発環境の準備とNetlifyへのデプロイ方法を説明します。すでに開発環境やワークフローについて理解している場合は、[ユニット2](/ja/tutorial/2-pages/)に進んでください。
 
-:::tip[stackblitzを使う]
+:::tip[チュートリアルをオンラインのコードエディターで進める]
 
-チュートリアルをオンラインのコードエディターで進めたいですか？
+チュートリアルをオンラインのコードエディターで進めたいですか？StackBlitzで始めるには、以下の手順に従ってください。
+
 <details>
-<summary>以下の手順に従って、ユニット2に進んでください！</summary>
+<summary>StackBlitzを使う: 以下の手順に従ってから、ユニット2に進んでください！</summary>
 
 **StackBlitzを設定する**
 
 <Steps>
-1. [astro.new](https://astro.new)にアクセスし、「Empty Project」テンプレートの「Open in StackBlitz」ボタンをクリックします。
+1. 外部リンクをクリックして、[StackBlitzの「Empty Project」テンプレートを開きます](https://astro.new/minimal?on=stackblitz)。
 
 2. 右上にある「Sign in」ボタンをクリックして、GitHubの認証情報を使いログインします。
 
@@ -36,7 +40,7 @@ import { Steps } from '@astrojs/starlight/components';
 
 **変更を加える**
 
-ファイルペインに`src/pages/index.astro`があるはずです。これをクリックして開き、[初めてのAstroコードを書く](/ja/tutorial/1-setup/3/)に従ってこのファイルを変更します。
+ファイルペインに`src/pages/index.astro`があるはずです。これをクリックして開き、[Astroでの最初の一行](/ja/tutorial/1-setup/3/)に従ってこのファイルを変更します。
 
 **GitHubリポジトリを作成する**
 
@@ -48,7 +52,9 @@ import { Steps } from '@astrojs/starlight/components';
 
 **サイトをデプロイする**
 
-Netlifyにデプロイする場合は、[サイトをウェブにデプロイする](/ja/tutorial/1-setup/5/)に進んでください。その他の場合は[ユニット2](/ja/tutorial/2-pages/)に進み、Astroでの開発を始めてください！
+Netlifyにデプロイして、作業中もサイトの公開版をホストしたい場合は、ユニット1の[サイトをウェブにデプロイする](/ja/tutorial/1-setup/5/)に進んでください。
+
+それ以外の場合は[ユニット2](/ja/tutorial/2-pages/)に進み、Astroでの開発を始めてください！
 
 </details>
 :::
